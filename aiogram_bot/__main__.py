@@ -1,6 +1,10 @@
 from aiogram import executor
 from aiogram_bot.misc.bot_connection import dp
-from aiogram_bot.handlers import chat_handler, reply_handler, inline_handler
+from aiogram_bot.handlers import (
+    chat_handler,
+    reply_handler,
+    inline_handler
+)
 
 
 if __name__ == '__main__':

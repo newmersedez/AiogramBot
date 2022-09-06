@@ -31,6 +31,7 @@ HELP_DESCRIPTION_TEXT = \
 
 NO_FAVORITE_MESSAGE = 'Вы еще не сохранили шаблоны'
 
+
 # --- Buttons text ---
 INLINE_OVERVIEW_BUTTON_TEXT = 'Посмотреть с моим товаром'
 INLINE_ORDER_BUTTON_TEXT = 'Заказать'

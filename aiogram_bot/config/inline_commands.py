@@ -9,4 +9,3 @@ TO_START_COMMAND = 'to_start_command'
 DELETE_COMMAND = 'delete_command'
 ORDER_DESIGN_COMMAND = 'order_design_command'
 NEXT_SCENARIO_COMMAND = 'next_scenario_command'
-

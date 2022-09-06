@@ -1,12 +1,11 @@
 from aiogram import types
-from sqlalchemy import insert, delete, update
+from sqlalchemy import insert
 
+from aiogram_bot.models.message import Message
+
+from aiogram_bot.handlers.utils import reply_handler_set_defaults
 from aiogram_bot.keyboards.reply_keyboard import reply_keyboard
 from aiogram_bot.keyboards.inline_keyboard import design_keyboard, favorite_keyboard, help_keyboard
-
-from aiogram_bot.models.user import User
-from aiogram_bot.models.message import Message
-from aiogram_bot.models.user_favorites import UserFavorites
 
 from aiogram_bot.misc.bot_connection import dp, bot
 from aiogram_bot.misc.db_connection import session_scope
@@ -28,24 +27,13 @@ from aiogram_bot.config.text_defines import (
 )
 
 
+# noinspection PyBroadException
 @dp.message_handler(lambda message: message.text == SIMPLE_DESIGN_COMMAND)
 async def reply_simple_design_command_handler(message: types.Message):
-    with session_scope() as s:
-        try:
-            # Updating last index
-            s.execute(update(User).where(User.user_id == message.from_user.id).values(last_index=0))
-
-            # Updating last reply command
-            s.execute(
-                update(User).where(User.user_id == message.from_user.id).values(last_reply_command=SIMPLE_DESIGN_COMMAND)
-            )
-
-            # Delete old messages
-            await bot.delete_message(message.chat.id, message.message_id)
-            request = s.query(Message).filter(Message.user_id == message.from_user.id).all()
-            for result in request:
-                await bot.delete_message(result.chat_id, result.message_id)
-            s.execute(delete(Message).where(Message.user_id == message.from_user.id))
+    try:
+        with session_scope() as s:
+            # Handler defaults
+            await reply_handler_set_defaults(s, message, 0, SIMPLE_DESIGN_COMMAND)
 
             # Loading images from resources
             data, _ = await ResourceLoader.load_images(ResourceType.Simple)
@@ -62,33 +50,22 @@ async def reply_simple_design_command_handler(message: types.Message):
                 s.execute(insert(Message).values(
                     [
                         {'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(msg1_id)},
-                        *[{'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(elem)} for elem in msg2_id],
+                        *[{'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(elem)}
+                          for elem in msg2_id],
                         {'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(msg3_id)}
                     ]
                 ))
-        except Exception as e:
-            print('SIMPLE EXCEPTION: ', e)
+    except:
+        pass
 
 
+# noinspection PyBroadException
 @dp.message_handler(lambda message: message.text == COMPLEX_DESIGN_COMMAND)
 async def reply_complex_design_command_handler(message: types.Message):
-    with session_scope() as s:
-        try:
-            # Updating last index
-            request = update(User).where(User.user_id == message.from_user.id).values(last_index=0)
-            s.execute(request)
-
-            # Updating last reply command
-            request = update(User).where(User.user_id == message.from_user.id).values(last_reply_command=COMPLEX_DESIGN_COMMAND)
-            s.execute(request)
-
-            # Delete old messages
-            await bot.delete_message(message.chat.id, message.message_id)
-            request = s.query(Message).filter(Message.user_id == message.from_user.id).all()
-            for result in request:
-                await bot.delete_message(result.chat_id, result.message_id)
-            request = delete(Message).where(Message.user_id == message.from_user.id)
-            s.execute(request)
+    try:
+        with session_scope() as s:
+            # Handler defaults
+            await reply_handler_set_defaults(s, message, 0, COMPLEX_DESIGN_COMMAND)
 
             # Loading images from resources
             data, _ = await ResourceLoader.load_images(ResourceType.Complex)
@@ -105,39 +82,30 @@ async def reply_complex_design_command_handler(message: types.Message):
                 request = insert(Message).values(
                     [
                         {'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(msg1_id)},
-                        *[{'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(elem)} for elem in msg2_id],
+                        *[{'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(elem)}
+                          for elem in msg2_id],
                         {'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(msg3_id)}
                     ]
                 )
                 s.execute(request)
-        except Exception as e:
-            print('EXCEPTION: ', e)
+    except:
+        pass
 
 
+# noinspection DuplicatedCode
 @dp.message_handler(lambda message: message.text == FAVORITE_COMMAND)
 async def reply_favorite_command_handler(message: types.Message):
-    with session_scope() as s:
-        try:
-            # Updating last index
-            request = update(User).where(User.user_id == message.from_user.id).values(last_index=0)
-            s.execute(request)
+    # noinspection PyBroadException
+    try:
+        with session_scope() as s:
+            # Handler defaults
+            await reply_handler_set_defaults(s, message, 0, FAVORITE_COMMAND)
 
-            # Updating last reply command
-            request = update(User).where(User.user_id == message.from_user.id).values(last_reply_command=FAVORITE_COMMAND)
-            s.execute(request)
+            # Loading images from resources
+            data, _ = await ResourceLoader.load_favorites(message.from_user.id)
 
-            # Delete old messages
-            await bot.delete_message(message.chat.id, message.message_id)
-            request = s.query(Message).filter(Message.user_id == message.from_user.id).all()
-            for result in request:
-                await bot.delete_message(result.chat_id, result.message_id)
-            request = delete(Message).where(Message.user_id == message.from_user.id)
-            s.execute(request)
-
-            # Loading data from user favorites
-            request = s.query(UserFavorites).filter(UserFavorites.user_id == message.from_user.id).first()
-            if request is not None:
-                data = request.resource.split(',')
+            # Display messages and update message_id in Message table
+            if data is not None and len(data) > 0:
                 media = list()
                 for i in range(1, 5):
                     media.append(types.InputMediaPhoto(data[i], f'Example {i}'))
@@ -162,28 +130,17 @@ async def reply_favorite_command_handler(message: types.Message):
                     message_id=int(msg_id)
                 )
                 s.execute(request)
-
-        except Exception as e:
-            print('EXCEPTION: ', e)
-            pass
+    except:
+        pass
 
 
 @dp.message_handler(lambda message: message.text == HELP_COMMAND)
 async def reply_help_command_handler(message: types.Message):
-    with session_scope() as s:
-        try:
-            # Updating last index
-            s.execute(update(User).where(User.user_id == message.from_user.id).values(last_index=0))
-
-            # Updating last reply command
-            s.execute(update(User).where(User.user_id == message.from_user.id).values(last_reply_command=HELP_COMMAND))
-
-            # Delete old messages
-            await bot.delete_message(message.chat.id, message.message_id)
-            request = s.query(Message).filter(Message.user_id == message.from_user.id).all()
-            for result in request:
-                await bot.delete_message(result.chat_id, result.message_id)
-            s.execute(delete(Message).where(Message.user_id == message.from_user.id))
+    # noinspection PyBroadException
+    try:
+        with session_scope() as s:
+            # Handler defaults
+            await reply_handler_set_defaults(s, message, 0, HELP_COMMAND)
 
             # Loading images from resources
             data, _ = await ResourceLoader.load_images(ResourceType.Help)
@@ -207,6 +164,5 @@ async def reply_help_command_handler(message: types.Message):
                         {'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(msg4_id)}
                     ]
                 ))
-        except Exception as e:
-            print('EXC: ', e)
-            pass
+    except:
+        pass

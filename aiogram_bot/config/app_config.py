@@ -7,6 +7,7 @@ ROOT_DIR = os.path.abspath(os.path.curdir)
 
 # --- DIR PATH ---
 CONFIG_DIR = os.path.join(ROOT_DIR, 'config')
+DATABASE_DIR = os.path.join(ROOT_DIR, 'database')
 HANDLERS_DIR = os.path.join(ROOT_DIR, 'handlers')
 KEYBOARDS_DIR = os.path.join(ROOT_DIR, 'keyboards')
 MISC_DIR = os.path.join(ROOT_DIR, 'misc')

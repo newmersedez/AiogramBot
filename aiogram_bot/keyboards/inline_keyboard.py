@@ -32,6 +32,8 @@ prev_button = InlineKeyboardButton(INLINE_PREV_BUTTON_TEXT, callback_data=PREV_C
 to_start_button = InlineKeyboardButton(INLINE_TO_START_BUTTON_TEXT, callback_data=TO_START_COMMAND)
 delete_button = InlineKeyboardButton(INLINE_DELETE_BUTTON_TEXT, callback_data=DELETE_COMMAND)
 
+
+# --- MAIN ---
 # Main design template keyboard
 inline_main_design_keyboard = InlineKeyboardMarkup(row_width=2)
 inline_main_design_keyboard.add(overview_button)
@@ -49,3 +51,21 @@ inline_to_start_design_keyboard.add(overview_button)
 inline_to_start_design_keyboard.add(order_button, to_favorite_button)
 inline_to_start_design_keyboard.add(prev_button, to_start_button)
 
+
+# --- FAVORITE ---
+# Main favorite template keyboard
+inline_favorite_main_design_keyboard = InlineKeyboardMarkup(row_width=2)
+inline_favorite_main_design_keyboard.add(overview_button)
+inline_favorite_main_design_keyboard.add(order_button, delete_button, next_design_button)
+
+# Overview favorite template keyboard
+inline_favorite_overview_design_keyboard = InlineKeyboardMarkup(row_width=2)
+inline_favorite_overview_design_keyboard.add(overview_button)
+inline_favorite_overview_design_keyboard.add(order_button, delete_button)
+inline_favorite_overview_design_keyboard.add(prev_button, next_button)
+
+# To start favorite template keyboard
+inline_favorite_to_start_design_keyboard = InlineKeyboardMarkup(row_width=2)
+inline_favorite_to_start_design_keyboard.add(overview_button)
+inline_favorite_to_start_design_keyboard.add(order_button, delete_button)
+inline_favorite_to_start_design_keyboard.add(prev_button, to_start_button)

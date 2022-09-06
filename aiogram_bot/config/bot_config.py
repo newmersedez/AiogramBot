@@ -3,7 +3,7 @@ from aiogram_bot.config.app_config import DATABASE_DIR, RESOURCES_DIR
 
 
 # --- BOT INFORMATION ---
-BOT_TOKEN = 'your token
+BOT_TOKEN = 'your token'
 
 
 # --- DATABASE ---

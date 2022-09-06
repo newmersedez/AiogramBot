@@ -8,24 +8,52 @@ from aiogram_bot.models.user_favorites import UserFavorites
 class ResourceType:
     Simple = 'simple_type'
     Complex = 'complex_type'
+    Help = 'help_type'
 
 
 class ResourceLoader:
     @staticmethod
-    async def load_resources(resource_type: str, resource_index=0, resource_path=RESOURCES_PATH):
+    async def get_images_count(resource_type: str, path=RESOURCES_PATH):
+        sheet = None
+        if resource_type == ResourceType.Simple:
+            sheet = pd.read_excel(path, sheet_name=0)
+        elif resource_type == ResourceType.Complex:
+            sheet = pd.read_excel(path, sheet_name=1)
+        elif resource_type == ResourceType.Help:
+            sheet = pd.read_excel(path, sheet_name=2)
+        return len(sheet)
+
+
+    @staticmethod
+    async def get_favorites_count(user_id: int):
+        with session_scope() as s:
+            request = s.query(UserFavorites).filter(UserFavorites.user_id == user_id).all()
+            return len(request)
+
+    @staticmethod
+    async def load_images(resource_type: str, resource_index=0, resource_path=RESOURCES_PATH):
         sheet = None
         if resource_type == ResourceType.Simple:
             sheet = pd.read_excel(resource_path, sheet_name=0)
         elif resource_type == ResourceType.Complex:
             sheet = pd.read_excel(resource_path, sheet_name=1)
+        elif resource_type == ResourceType.Help:
+            sheet = pd.read_excel(resource_path, sheet_name=2)
+        if sheet is None:
+            return None, False
+
+        last_index = False
         simple_resources_sheet = [[*elem] for elem in sheet.values]
-        return simple_resources_sheet[resource_index]
+        if resource_index == len(simple_resources_sheet) - 1:
+            last_index = True
+        return simple_resources_sheet[resource_index], last_index
 
     @staticmethod
     async def load_favorites(user_id: int, resource_index=0):
         with session_scope() as s:
+            last_index = False
             request = s.query(UserFavorites).filter(UserFavorites.user_id == user_id).all()
             data = [data.resource.split(',') for data in request]
-            if resource_index == len(data):
-                raise Exception('Reached last index')
-            return data[resource_index]
+            if resource_index == len(data) - 1:
+                last_index = True
+            return data[resource_index], last_index

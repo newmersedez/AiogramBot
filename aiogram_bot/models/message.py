@@ -12,4 +12,4 @@ class Message(Base):
     user = relationship('User')
 
     def __str__(self):
-        return f'id={self.id}, user_id = {self.user_id}, chat_id = {self.chat_id}, message_id = {message_id}'
+        return f'id={self.id}, user_id = {self.user_id}, chat_id = {self.chat_id}, message_id = {self.message_id}'

@@ -41,7 +41,6 @@ from aiogram_bot.config.inline_commands import (
     ORDER_DESIGN_COMMAND
 )
 from aiogram_bot.config.text_defines import (
-    DESIGN_DESCRIPTION_TEXT,
     NO_FAVORITE_MESSAGE
 )
 
@@ -247,83 +246,61 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
                 await bot.edit_message_media(
                     types.InputMediaPhoto(data[i], f'Example {i}'), callback_query.message.chat.id, message_request[i].message_id)
 
-        if last_reply_command == FAVORITE_COMMAND:
-            await bot.edit_message_reply_markup(
-                callback_query.message.chat.id, message_request[-1].message_id, reply_markup=favorite_keyboard)
-        elif last_reply_command == HELP_COMMAND:
-            await bot.edit_message_reply_markup(
-                callback_query.message.chat.id, message_request[-1].message_id, reply_markup=help_keyboard)
-        else:
-            await bot.edit_message_reply_markup(
-                callback_query.message.chat.id, message_request[-1].message_id, reply_markup=design_keyboard)
+        # Edit keyboard
+        try:
+            if last_reply_command == FAVORITE_COMMAND:
+                await bot.edit_message_reply_markup(
+                    callback_query.message.chat.id, message_request[-1].message_id, reply_markup=favorite_keyboard)
+            elif last_reply_command == HELP_COMMAND:
+                await bot.edit_message_reply_markup(
+                    callback_query.message.chat.id, message_request[-1].message_id, reply_markup=help_keyboard)
+            else:
+                await bot.edit_message_reply_markup(
+                    callback_query.message.chat.id, message_request[-1].message_id, reply_markup=design_keyboard)
+        except:
+            pass
 
 
 @dp.callback_query_handler(lambda c: c.data and c.data == DELETE_COMMAND)
 async def inline_delete_command_handler(callback_query: types.CallbackQuery):
-    pass
-    # with session_scope() as s:
-    #     # Get user last_index
-    #     user_request = s.query(User).filter(User.user_id == callback_query.from_user.id).first()
-    #     if user_request is None:
-    #         return
-    #
-    #     # Get data using ResourceLoader
-    #     last_index = user_request.last_index
-    #     data, is_last_index = await ResourceLoader.load_favorites(callback_query.from_user.id, last_index)
-    #     if data is None:
-    #         return
-    #
-    #     # Delete favorite resource
-    #     resource_string = ','.join([elem.strip() for elem in data])
-    #     s.execute(
-    #         delete(UserFavorites).where(and_(UserFavorites.user_id == callback_query.from_user.id,
-    #                                          UserFavorites.resource == resource_string))
-    #     )
-    #
-    #     # Move last_index
-    #     if is_last_index is True:
-    #         if last_index == 0:
-    #             message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
-    #             for result in message_request:
-    #                 await bot.delete_message(callback_query.message.chat.id, result.message_id)
-    #             s.execute(delete(Message).where(Message.user_id == callback_query.from_user.id))
-    #
-    #             msg_id = await bot.send_message(
-    #                 callback_query.message.chat.id, NO_FAVORITE_MESSAGE, reply_markup=reply_keyboard)
-    #             s.execute(insert(Message).values(
-    #                 user_id=callback_query.from_user.id, chat_id=callback_query.message.chat.id, message_id=int(msg_id)
-    #             ))
-    #         else:
-    #             print('lalka2')
-    #             data, _ = await ResourceLoader.load_favorites(callback_query.from_user.id, last_index - 1)
-    #             message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
-    #             for i in range(1, 5):
-    #                 await bot.edit_message_media(
-    #                     types.InputMediaPhoto(data[i], f'Example {i}'), callback_query.message.chat.id,
-    #                     message_request[i].message_id)
-    #             try:
-    #                 await bot.edit_message_reply_markup(
-    #                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=to_start_favorite_keyboard)
-    #             except:
-    #                 pass
-    #     else:
-    #         print('lalka3')
-    #         data, is_last_index = await ResourceLoader.load_favorites(callback_query.from_user.id, last_index + 1)
-    #         message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
-    #         for i in range(1, 5):
-    #             await bot.edit_message_media(
-    #                 types.InputMediaPhoto(data[i], f'Example {i}'), callback_query.message.chat.id,
-    #                 message_request[i].message_id)
-    #
-    #         if is_last_index is True:
-    #             try:
-    #                 await bot.edit_message_reply_markup(
-    #                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=to_start_favorite_keyboard)
-    #             except:
-    #                 pass
-    #         if last_index > 0:
-    #             try:
-    #                 await bot.edit_message_reply_markup(
-    #                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=view_favorite_keyboard)
-    #             except:
-    #                 pass
+    with session_scope() as s:
+        # Get user last_index
+        user_request = s.query(User).filter(User.user_id == callback_query.from_user.id).first()
+        if user_request is None:
+            return
+
+        # Get data using ResourceLoader
+        last_index = user_request.last_index
+        data, is_last_index = await ResourceLoader.load_favorites(callback_query.from_user.id, last_index)
+        if data is None:
+            return
+
+        # Delete favorite resource
+        resource_string = ','.join([elem.strip() for elem in data])
+        s.execute(
+            delete(UserFavorites).where(and_(UserFavorites.user_id == callback_query.from_user.id,
+                                             UserFavorites.resource == resource_string))
+        )
+
+        # Move last_index
+        try:
+            if is_last_index is True:
+                if last_index == 0:
+                    message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
+                    for result in message_request:
+                        await bot.delete_message(callback_query.message.chat.id, result.message_id)
+                    s.execute(delete(Message).where(Message.user_id == callback_query.from_user.id))
+
+                    msg_id = await bot.send_message(
+                        callback_query.message.chat.id, NO_FAVORITE_MESSAGE, reply_markup=reply_keyboard)
+                    s.execute(insert(Message).values(
+                        user_id=callback_query.from_user.id, chat_id=callback_query.message.chat.id, message_id=int(msg_id)
+                    ))
+                else:
+                    s.commit()
+                    await inline_to_start_command_handler(callback_query)
+            else:
+                s.commit()
+                await inline_to_start_command_handler(callback_query)
+        except:
+            pass

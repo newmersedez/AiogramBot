@@ -1,3 +1,4 @@
+import os
 from PIL import Image
 from image_utility.template_helper import (
     resize_for_complex_template,
@@ -8,10 +9,13 @@ from image_utility.template_helper import (
     COMPLEX_TEMPLATE_IMAGE_Y
 )
 
+ROOT_DIR = os.path.abspath(os.path.pardir)
+IMAGE_UTILITY_DIR = os.path.join(ROOT_DIR, 'image_utility')
+IMAGES_DIR = os.path.join(IMAGE_UTILITY_DIR, 'images')
+WATERMARK_PATH = os.path.join(IMAGES_DIR, 'watermark.png')
 
-def create_simple_template(image_path: str, output_path: str,
-                           background='image_utility/images/simple_template.png',
-                           watermark='image_utility/images/watermark.png'):
+
+def create_simple_template(image_path: str, output_path: str, background=str, watermark=WATERMARK_PATH):
     """
     Creates simple shop product cover with title and given image (image_path). The result is stored in output_path.
 
@@ -38,9 +42,7 @@ def create_simple_template(image_path: str, output_path: str,
     image.save(output_path)
 
 
-def create_complex_template(image_path: str, output_path: str,
-                            background='image_utility/images/complex_template.png',
-                            watermark='image_utility/images/watermark.png'):
+def create_complex_template(image_path: str, output_path: str, background=str, watermark=WATERMARK_PATH):
     """
     Creates complex shop product cover with title and given image (image_path). The result is stored in output_path.
 

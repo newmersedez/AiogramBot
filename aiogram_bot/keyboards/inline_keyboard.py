@@ -10,7 +10,11 @@ from aiogram_bot.config.text_defines import (
     INLINE_TO_START_BUTTON_TEXT,
     INLINE_DELETE_BUTTON_TEXT,
     INLINE_ORDER_DESIGN_BUTTON_TEXT,
-    INLINE_NEXT_SCENARIO_BUTTON_TEXT
+    INLINE_NEXT_SCENARIO_BUTTON_TEXT,
+    INLINE_INSTRUCTION_BUTTON_TEXT,
+    INLINE_RETURN_BUTTON_TEXT,
+    INLINE_CONNECT_DESIGNER_BUTTON_TEXT,
+    INLINE_UPLOAD_NEW_IMAGE_BUTTON_TEXT
 )
 from aiogram_bot.config.inline_commands import (
     OVERVIEW_DESIGN_COMMAND,
@@ -22,7 +26,11 @@ from aiogram_bot.config.inline_commands import (
     TO_START_COMMAND,
     DELETE_COMMAND,
     ORDER_DESIGN_COMMAND,
-    NEXT_SCENARIO_COMMAND
+    NEXT_SCENARIO_COMMAND,
+    INSTRUCTION_COMMAND,
+    RETURN_COMMAND,
+    CONNECT_DESIGNER_COMMAND,
+    UPLOAD_NEW_IMAGE_COMMAND
 )
 
 
@@ -37,6 +45,10 @@ to_start_button = InlineKeyboardButton(INLINE_TO_START_BUTTON_TEXT, callback_dat
 delete_button = InlineKeyboardButton(INLINE_DELETE_BUTTON_TEXT, callback_data=DELETE_COMMAND)
 order_design_button = InlineKeyboardButton(INLINE_ORDER_DESIGN_BUTTON_TEXT, callback_data=ORDER_DESIGN_COMMAND)
 next_scenario_button = InlineKeyboardButton(INLINE_NEXT_SCENARIO_BUTTON_TEXT, callback_data=NEXT_SCENARIO_COMMAND)
+instruction_button = InlineKeyboardButton(INLINE_INSTRUCTION_BUTTON_TEXT, callback_data=INSTRUCTION_COMMAND)
+return_button = InlineKeyboardButton(INLINE_RETURN_BUTTON_TEXT, callback_data=RETURN_COMMAND)
+connect_designer_button = InlineKeyboardButton(INLINE_CONNECT_DESIGNER_BUTTON_TEXT, callback_data=CONNECT_DESIGNER_COMMAND)
+upload_new_image_button = InlineKeyboardButton(INLINE_UPLOAD_NEW_IMAGE_BUTTON_TEXT, callback_data=UPLOAD_NEW_IMAGE_COMMAND)
 
 
 # --- MAIN ---
@@ -91,3 +103,28 @@ help_view_keyboard.add(prev_button, next_button)
 help_to_start_keyboard = InlineKeyboardMarkup(row_width=2)
 help_to_start_keyboard.add(order_design_button)
 help_to_start_keyboard.add(prev_button, to_start_button)
+
+
+# --- OVERVIEW ---
+overview_keyboard = InlineKeyboardMarkup(row_width=2)
+overview_keyboard.add(instruction_button)
+overview_keyboard.add(return_button)
+
+instruction_keyboard = InlineKeyboardMarkup(row_width=1)
+instruction_keyboard.add(connect_designer_button, upload_new_image_button, return_button)
+
+upload_image_keyboard = InlineKeyboardMarkup(row_width=1)
+upload_image_keyboard.add(order_design_button, upload_new_image_button, instruction_button, return_button)
+
+keyboards_dict = {
+    'design_keyboard': design_keyboard,
+    'design_view_keyboard': design_view_keyboard,
+    'design_to_start_keyboard': design_to_start_keyboard,
+    'favorite_keyboard': favorite_keyboard,
+    'favorite_view_keyboard': favorite_view_keyboard,
+    'favorite_to_start_keyboard': favorite_to_start_keyboard,
+    'help_keyboard': help_keyboard,
+    'help_view_keyboard': help_view_keyboard,
+    'help_to_start_keyboard': help_to_start_keyboard,
+    'instruction_keyboard': overview_keyboard
+}

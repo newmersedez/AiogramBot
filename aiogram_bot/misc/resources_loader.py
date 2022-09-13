@@ -1,8 +1,8 @@
 import pandas as pd
 
-from aiogram_bot.misc.db_connection import session_scope
-from aiogram_bot.config.bot_config import RESOURCES_PATH
-from aiogram_bot.models.user_favorites import UserFavorites
+from aiogram_bot.misc import session_scope
+from aiogram_bot.config import RESOURCES_PATH
+from aiogram_bot.models import UserFavorites
 
 
 class ResourceType:

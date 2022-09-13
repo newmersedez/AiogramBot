@@ -1,6 +1,5 @@
 import sqlalchemy as sa
-from sqlalchemy.orm import relationship
-from aiogram_bot.models.base import Base
+from aiogram_bot.models import Base
 
 
 class UserFavorites(Base):

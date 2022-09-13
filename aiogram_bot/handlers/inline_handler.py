@@ -1,19 +1,12 @@
 from aiogram import types
-import json
 from sqlalchemy import insert, update, delete, and_
 
-from aiogram_bot.keyboards.reply_keyboard import reply_keyboard
-from aiogram_bot.handlers.utils import delete_old_messages, get_actual_message
+from aiogram_bot.keyboards import reply_keyboard
+from aiogram_bot.models import User, Message, UserFavorites
+from aiogram_bot.handlers import delete_old_messages, get_actual_message
+from aiogram_bot.misc import ResourceType, ResourceLoader, session_scope, dp, bot
 
-from aiogram_bot.models.user import User
-from aiogram_bot.models.message import Message
-from aiogram_bot.models.user_favorites import UserFavorites
-
-from aiogram_bot.misc.resources_loader import ResourceType, ResourceLoader
-from aiogram_bot.misc.db_connection import session_scope
-from aiogram_bot.misc.bot_connection import dp, bot
-
-from aiogram_bot.keyboards.inline_keyboard import (
+from aiogram_bot.keyboards import (
     design_keyboard,
     design_view_keyboard,
     design_to_start_keyboard,
@@ -27,14 +20,12 @@ from aiogram_bot.keyboards.inline_keyboard import (
     instruction_keyboard,
     keyboards_dict
 )
-
-from aiogram_bot.commands.reply_commands import (
+from aiogram_bot.commands import (
     SIMPLE_DESIGN_COMMAND,
     COMPLEX_DESIGN_COMMAND,
     FAVORITE_COMMAND,
-    HELP_COMMAND
-)
-from aiogram_bot.commands.inline_commands import (
+    HELP_COMMAND,
+
     OVERVIEW_DESIGN_COMMAND,
     ORDER_COMMAND,
     TO_FAVORITE_COMMAND,
@@ -47,10 +38,9 @@ from aiogram_bot.commands.inline_commands import (
     ORDER_DESIGN_COMMAND,
     RETURN_COMMAND,
     INSTRUCTION_COMMAND,
-    UPLOAD_NEW_IMAGE_COMMAND
-)
-from aiogram_bot.commands.text_commands import (
-    NO_FAVORITE_MESSAGE,
+    UPLOAD_NEW_IMAGE_COMMAND,
+
+    NO_FAVORITE_MESSAGE_TEXT,
     OVERVIEW_STARTUP_TEXT,
     OVERVIEW_LOAD_PHOTO_TEXT,
     DESIGN_STARTUP_TEXT,
@@ -515,7 +505,7 @@ async def inline_delete_command_handler(callback_query: types.CallbackQuery):
                 s.execute(delete(Message).where(Message.user_id == callback_query.from_user.id))
 
                 msg_id = await bot.send_message(
-                    callback_query.message.chat.id, NO_FAVORITE_MESSAGE,
+                    callback_query.message.chat.id, NO_FAVORITE_MESSAGE_TEXT,
                     reply_markup=reply_keyboard)
                 s.execute(
                     insert(Message).values(

@@ -1,16 +1,11 @@
 from aiogram import types, filters
 from sqlalchemy import insert
 
-from aiogram_bot.keyboards.reply_keyboard import reply_keyboard
-from aiogram_bot.handlers.utils import delete_old_messages, get_actual_message
-
-from aiogram_bot.models.user import User
-from aiogram_bot.models.message import Message
-
-from aiogram_bot.misc.bot_connection import dp, bot
-from aiogram_bot.misc.db_connection import session_scope
-
-from aiogram_bot.commands.text_commands import STARTUP_TEXT, GREETING_USER_TEXT
+from aiogram_bot.models import User, Message
+from aiogram_bot.keyboards import reply_keyboard
+from aiogram_bot.misc import dp, bot, session_scope
+from aiogram_bot.commands import STARTUP_TEXT, GREETING_USER_TEXT
+from aiogram_bot.handlers import delete_old_messages, get_actual_message
 
 
 @dp.message_handler(filters.CommandStart())

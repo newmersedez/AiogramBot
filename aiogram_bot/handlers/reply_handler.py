@@ -1,34 +1,31 @@
-from urllib.parse import urlencode
-
 import requests
 from aiogram import types
+from urllib.parse import urlencode
 from sqlalchemy import insert, update, and_
 
 from image_utility import create_simple_template, create_complex_template
 
-from aiogram_bot.models.message import Message
-from aiogram_bot.models.user import User
-from aiogram_bot.models.user_favorites import UserFavorites
+from aiogram_bot.config import IMAGES_DIR
+from aiogram_bot.models import Message, User, UserFavorites
+from aiogram_bot.handlers import reply_handler_set_defaults, get_actual_message, delete_old_messages
+from aiogram_bot.misc import dp, bot, session_scope, ResourceType, ResourceLoader
 
-from aiogram_bot.handlers.utils import reply_handler_set_defaults, get_actual_message, delete_old_messages
-from aiogram_bot.keyboards.reply_keyboard import reply_keyboard
-from aiogram_bot.keyboards.inline_keyboard import design_keyboard, favorite_keyboard, help_keyboard, upload_image_keyboard
-
-from aiogram_bot.misc.bot_connection import dp, bot
-from aiogram_bot.misc.db_connection import session_scope
-from aiogram_bot.misc.resources_loader import ResourceType, ResourceLoader
-
-from aiogram_bot.config.app_config import IMAGES_DIR
-from aiogram_bot.commands.reply_commands import (
+from aiogram_bot.keyboards import (
+    reply_keyboard,
+    design_keyboard,
+    favorite_keyboard,
+    help_keyboard,
+    upload_image_keyboard
+)
+from aiogram_bot.commands import (
     SIMPLE_DESIGN_COMMAND,
     COMPLEX_DESIGN_COMMAND,
     FAVORITE_COMMAND,
-    HELP_COMMAND
-)
-from aiogram_bot.commands.text_commands import (
+    HELP_COMMAND,
+
     DESIGN_STARTUP_TEXT,
     DESIGN_DESCRIPTION_TEXT,
-    NO_FAVORITE_MESSAGE,
+    NO_FAVORITE_MESSAGE_TEXT,
     HELP_DESCRIPTION_TEXT,
     HELP_STARTUP_TEXT,
     HELP_WARNING_TEXT,
@@ -257,7 +254,7 @@ async def reply_favorite_command_handler(message: types.Message):
                 )
                 s.execute(request)
             else:
-                msg_id = await bot.send_message(message.chat.id, NO_FAVORITE_MESSAGE, reply_markup=reply_keyboard)
+                msg_id = await bot.send_message(message.chat.id, NO_FAVORITE_MESSAGE_TEXT, reply_markup=reply_keyboard)
                 s.execute(
                     insert(Message).values(
                         user_id=message.from_user.id,

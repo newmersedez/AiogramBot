@@ -1,6 +1,6 @@
 import os
 import configparser
-from aiogram_bot.config.app_config import CONFIG_DIR, DATABASE_DIR, RESOURCES_DIR
+from aiogram_bot.config import CONFIG_DIR, DATABASE_DIR, RESOURCES_DIR
 
 # Read config file
 parser = configparser.ConfigParser()

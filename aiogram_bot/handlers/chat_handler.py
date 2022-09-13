@@ -10,7 +10,7 @@ from aiogram_bot.models.message import Message
 from aiogram_bot.misc.bot_connection import dp, bot
 from aiogram_bot.misc.db_connection import session_scope
 
-from aiogram_bot.config.text_defines import STARTUP_TEXT, GREETING_USER_TEXT
+from aiogram_bot.commands.text_commands import STARTUP_TEXT, GREETING_USER_TEXT
 
 
 @dp.message_handler(filters.CommandStart())

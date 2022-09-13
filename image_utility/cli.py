@@ -199,14 +199,8 @@ def p(
                         remove_helper(each_input.read_bytes(), session=session, **kwargs),
                     )
                 )
-
-                # if watch:
-                #     print(
-                #         f"processed: {each_input.absolute()} -> {each_output.absolute()}"
-                #     )
-        except Exception as e:
+        except:
             pass
-            # print(e)
 
     inputs = list(input.glob("**/*"))
     if not watch:

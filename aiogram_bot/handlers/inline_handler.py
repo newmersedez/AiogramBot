@@ -28,13 +28,13 @@ from aiogram_bot.keyboards.inline_keyboard import (
     keyboards_dict
 )
 
-from aiogram_bot.config.reply_commands import (
+from aiogram_bot.commands.reply_commands import (
     SIMPLE_DESIGN_COMMAND,
     COMPLEX_DESIGN_COMMAND,
     FAVORITE_COMMAND,
     HELP_COMMAND
 )
-from aiogram_bot.config.inline_commands import (
+from aiogram_bot.commands.inline_commands import (
     OVERVIEW_DESIGN_COMMAND,
     ORDER_COMMAND,
     TO_FAVORITE_COMMAND,
@@ -49,14 +49,15 @@ from aiogram_bot.config.inline_commands import (
     INSTRUCTION_COMMAND,
     UPLOAD_NEW_IMAGE_COMMAND
 )
-from aiogram_bot.config.text_defines import (
+from aiogram_bot.commands.text_commands import (
     NO_FAVORITE_MESSAGE,
     OVERVIEW_STARTUP_TEXT,
     OVERVIEW_LOAD_PHOTO_TEXT,
     DESIGN_STARTUP_TEXT,
     DESIGN_DESCRIPTION_TEXT,
     INSTRUCTION_TEXT,
-    UPLOAD_PHOTO_TEXT
+    UPLOAD_PHOTO_TEXT,
+    HELP_DESCRIPTION_TEXT
 )
 
 
@@ -71,6 +72,7 @@ async def inline_upload_new_image_command_handler(callback_query: types.Callback
                 message_id=int(msg_id)
             )
         )
+
 
 @dp.callback_query_handler(lambda c: c.data and c.data == INSTRUCTION_COMMAND)
 async def inline_instruction_command_handler(callback_query: types.CallbackQuery):
@@ -216,7 +218,6 @@ async def inline_to_favorite_command_handler(callback_query: types.CallbackQuery
             )
 
 
-# noinspection PyBroadException
 @dp.callback_query_handler(
     lambda c: c.data and (c.data == NEXT_DESIGN_COMMAND or c.data == NEXT_COMMAND or c.data == NEXT_SCENARIO_COMMAND))
 async def inline_next_design_command_handler(callback_query: types.CallbackQuery):
@@ -249,16 +250,23 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
         s.execute(update(User).where(User.user_id == callback_query.from_user.id).values(last_index=new_index))
         message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
 
-        if last_reply_command == HELP_COMMAND:
-            for i in range(2, 4):
-                await bot.edit_message_media(
-                    types.InputMediaPhoto(data[i - 2], f'Example {i}'),
-                    callback_query.message.chat.id, message_request[i].message_id)
-        else:
-            for i in range(1, 5):
-                await bot.edit_message_media(
-                    types.InputMediaPhoto(data[i], f'Example {i}'),
-                    callback_query.message.chat.id, message_request[i].message_id)
+        try:
+            if last_reply_command == HELP_COMMAND:
+                for i in range(2, 4):
+                    await bot.edit_message_media(
+                        types.InputMediaPhoto(data[i - 2], f'Example {i}'),
+                        callback_query.message.chat.id, message_request[i].message_id)
+                await bot.edit_message_text(HELP_DESCRIPTION_TEXT.format(data[2], data[3]),
+                                            callback_query.message.chat.id, message_request[-1].message_id)
+            else:
+                for i in range(1, 5):
+                    await bot.edit_message_media(
+                        types.InputMediaPhoto(data[i], f'Example {i}'),
+                        callback_query.message.chat.id, message_request[i].message_id)
+                await bot.edit_message_text(DESIGN_DESCRIPTION_TEXT.format(data[5], data[6]),
+                                            callback_query.message.chat.id, message_request[-1].message_id)
+        except:
+            pass
 
         # Updating keyboard
         try:
@@ -340,16 +348,23 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
         s.execute(update(User).where(User.user_id == callback_query.from_user.id).values(last_index=new_index))
         message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
 
-        if last_reply_command == HELP_COMMAND:
-            for i in range(2, 4):
-                await bot.edit_message_media(
-                    types.InputMediaPhoto(data[i - 2], f'Example {i}'),
-                    callback_query.message.chat.id, message_request[i].message_id)
-        else:
-            for i in range(1, 5):
-                await bot.edit_message_media(
-                    types.InputMediaPhoto(data[i], f'Example {i}'),
-                    callback_query.message.chat.id, message_request[i].message_id)
+        try:
+            if last_reply_command == HELP_COMMAND:
+                for i in range(2, 4):
+                    await bot.edit_message_media(
+                        types.InputMediaPhoto(data[i - 2], f'Example {i}'),
+                        callback_query.message.chat.id, message_request[i].message_id)
+                await bot.edit_message_text(HELP_DESCRIPTION_TEXT.format(data[2], data[3]),
+                                            callback_query.message.chat.id, message_request[-1].message_id)
+            else:
+                for i in range(1, 5):
+                    await bot.edit_message_media(
+                        types.InputMediaPhoto(data[i], f'Example {i}'),
+                        callback_query.message.chat.id, message_request[i].message_id)
+                await bot.edit_message_text(DESIGN_DESCRIPTION_TEXT.format(data[5], data[6]),
+                    callback_query.message.chat.id, message_request[-1].message_id)
+        except:
+            pass
 
         # Updating keyboard
         try:
@@ -399,7 +414,6 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
             pass
 
 
-# noinspection PyBroadException
 @dp.callback_query_handler(lambda c: c.data and c.data == TO_START_COMMAND)
 async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
     with session_scope() as s:
@@ -426,16 +440,23 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
         s.execute(update(User).where(User.user_id == callback_query.from_user.id).values(last_index=0))
         message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
 
-        if last_reply_command == HELP_COMMAND:
-            for i in range(2, 4):
-                await bot.edit_message_media(
-                    types.InputMediaPhoto(data[i - 2], f'Example {i}'),
-                    callback_query.message.chat.id, message_request[i].message_id)
-        else:
-            for i in range(1, 5):
-                await bot.edit_message_media(
-                    types.InputMediaPhoto(data[i], f'Example {i}'),
-                    callback_query.message.chat.id, message_request[i].message_id)
+        try:
+            if last_reply_command == HELP_COMMAND:
+                for i in range(2, 4):
+                    await bot.edit_message_media(
+                        types.InputMediaPhoto(data[i - 2], f'Example {i}'),
+                        callback_query.message.chat.id, message_request[i].message_id)
+                await bot.edit_message_text(HELP_DESCRIPTION_TEXT.format(data[2], data[3]),
+                                            callback_query.message.chat.id, message_request[-1].message_id)
+            else:
+                for i in range(1, 5):
+                    await bot.edit_message_media(
+                        types.InputMediaPhoto(data[i], f'Example {i}'),
+                        callback_query.message.chat.id, message_request[i].message_id)
+                await bot.edit_message_text(DESIGN_DESCRIPTION_TEXT.format(data[5], data[6]),
+                                            callback_query.message.chat.id, message_request[-1].message_id)
+        except:
+            pass
 
         # Edit keyboard
         try:
@@ -464,7 +485,6 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
             pass
 
 
-# noinspection PyBroadException
 @dp.callback_query_handler(lambda c: c.data and c.data == DELETE_COMMAND)
 async def inline_delete_command_handler(callback_query: types.CallbackQuery):
     with session_scope() as s:

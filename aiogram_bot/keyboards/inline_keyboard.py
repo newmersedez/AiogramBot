@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from aiogram_bot.config.text_defines import (
+from aiogram_bot.commands.text_commands import (
     INLINE_OVERVIEW_BUTTON_TEXT,
     INLINE_ORDER_BUTTON_TEXT,
     INLINE_TO_FAVORITE_BUTTON_TEXT,
@@ -16,7 +16,7 @@ from aiogram_bot.config.text_defines import (
     INLINE_CONNECT_DESIGNER_BUTTON_TEXT,
     INLINE_UPLOAD_NEW_IMAGE_BUTTON_TEXT
 )
-from aiogram_bot.config.inline_commands import (
+from aiogram_bot.commands.inline_commands import (
     OVERVIEW_DESIGN_COMMAND,
     ORDER_COMMAND,
     TO_FAVORITE_COMMAND,

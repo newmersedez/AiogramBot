@@ -54,32 +54,6 @@ def resize_for_simple_template(image_path: str, base_width=SIMPLE_TEMPLATE_WIDTH
     :return: Image class object
     """
 
-    # image = Image.open(image_path).convert("RGBA")
-    # resize_width = image.width
-    # resize_height = image.height
-    # aspect_ratio = float(min(image.width, image.height)) / float(max(image.width, image.height))
-    #
-    # if resize_width < base_width:
-    #     resize_width = SIMPLE_TEMPLATE_WIDTH
-    #     resize_height = int(resize_width / aspect_ratio)
-    # else:
-    #     resize_width = SIMPLE_TEMPLATE_WIDTH
-    #     resize_height = int(resize_width * aspect_ratio)
-    #
-    # if resize_height < base_height:
-    #     resize_height = SIMPLE_TEMPLATE_HEIGHT
-    #     resize_width = int(resize_height / aspect_ratio)
-    # else:
-    #     resize_height = SIMPLE_TEMPLATE_HEIGHT
-    #     resize_width = int(resize_height * aspect_ratio)
-    #
-    # image = image.resize((resize_width, resize_height), Image.ANTIALIAS)
-    # x0, y0 = (resize_width // 2) - (base_width // 2), 0
-    # x1, y1 = (resize_width // 2) + (base_width // 2), base_height
-    # image = image.crop((x0, y0, x1, y1))
-    # print(image.width, image.height)
-    # return image
-
     image = Image.open(image_path).convert("RGBA")
     resize_width = image.width
     resize_height = image.height
@@ -90,18 +64,14 @@ def resize_for_simple_template(image_path: str, base_width=SIMPLE_TEMPLATE_WIDTH
             resize_height = base_width
     else:
         aspect_ratio = float(resize_width) / float(resize_height)
-        # print(f'0: {resize_width}, {resize_height}, {float(resize_width) / float(resize_height)}')
         if resize_width < base_width:
             resize_width = base_width
             resize_height = int(resize_width / aspect_ratio)
-            # print(f'1: {resize_width}, {resize_height}, {float(resize_width) / float(resize_height)}')
         if resize_height < base_height:
             resize_height = base_height
             resize_width = int(resize_height * aspect_ratio)
-            # print(f'2: {resize_width}, {resize_height}, {float(resize_width) / float(resize_height)}')
 
     image = image.resize((resize_width, resize_height), Image.ANTIALIAS)
-    # print(image.width, image.height)
     if image.width > base_width:
         x0, y0 = (image.width // 2) - (base_width // 2), 0
         x1, y1 = (image.width // 2) + (base_width // 2), image.height
@@ -110,5 +80,4 @@ def resize_for_simple_template(image_path: str, base_width=SIMPLE_TEMPLATE_WIDTH
         x0, y0 = 0, 0
         x1, y1 = image.width, base_height
         image = image.crop((x0, y0, x1, y1))
-    # print(image.width, image.height, '\n')
     return image

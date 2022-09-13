@@ -1,6 +1,6 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-from aiogram_bot.config.reply_commands import (
+from aiogram_bot.commands.reply_commands import (
     SIMPLE_DESIGN_COMMAND,
     COMPLEX_DESIGN_COMMAND,
     FAVORITE_COMMAND,

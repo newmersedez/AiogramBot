@@ -1,5 +1,3 @@
-import shutil
-import urllib.request
 from urllib.parse import urlencode
 
 import requests
@@ -21,13 +19,13 @@ from aiogram_bot.misc.db_connection import session_scope
 from aiogram_bot.misc.resources_loader import ResourceType, ResourceLoader
 
 from aiogram_bot.config.app_config import IMAGES_DIR
-from aiogram_bot.config.reply_commands import (
+from aiogram_bot.commands.reply_commands import (
     SIMPLE_DESIGN_COMMAND,
     COMPLEX_DESIGN_COMMAND,
     FAVORITE_COMMAND,
     HELP_COMMAND
 )
-from aiogram_bot.config.text_defines import (
+from aiogram_bot.commands.text_commands import (
     DESIGN_STARTUP_TEXT,
     DESIGN_DESCRIPTION_TEXT,
     NO_FAVORITE_MESSAGE,
@@ -41,8 +39,8 @@ from aiogram_bot.config.text_defines import (
 
 @dp.message_handler(content_types=['photo', 'document'])
 async def photo_or_doc_handler(message: types.Message):
-    with session_scope() as s:
-        try:
+    try:
+        with session_scope() as s:
             user_request = s.query(User).filter(User.user_id == message.from_user.id).first()
             if user_request.check_image_overview == 0:
                 await bot.delete_message(message.chat.id, message.message_id)
@@ -65,12 +63,13 @@ async def photo_or_doc_handler(message: types.Message):
             )
 
             # Creating image
+            print('lol1')
             user_request = s.query(User).filter(User.user_id == message.from_user.id).first()
             last_reply_command = user_request.last_reply_command
             image_path = fr'{IMAGES_DIR}\{message.from_user.id}.png'
             output_path = fr'{IMAGES_DIR}\{message.from_user.id}_result.png'
             template_path = fr'{IMAGES_DIR}\{message.from_user.id}_template.png'
-
+            print('lol2')
             data = None
             if last_reply_command == FAVORITE_COMMAND:
                 data, _ = await ResourceLoader.load_favorites(message.from_user.id, user_request.last_index)
@@ -79,26 +78,31 @@ async def photo_or_doc_handler(message: types.Message):
                          UserFavorites.resource == ','.join(elem.strip() for elem in data))
                 ).first()
                 last_reply_command = user_request.resource_type
-
+            print('lol3')
             if data is None:
                 if last_reply_command == SIMPLE_DESIGN_COMMAND:
                     data, _ = await ResourceLoader.load_images(ResourceType.Simple, user_request.last_index)
                 elif last_reply_command == COMPLEX_DESIGN_COMMAND:
                     data, _ = await ResourceLoader.load_images(ResourceType.Complex, user_request.last_index)
 
+            print('lol 4')
             base_url = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?'
             public_key = data[0]
+            print(public_key)
             final_url = base_url + urlencode(dict(public_key=public_key))
             response = requests.get(final_url)
+            print(response.json())
             download_url = response.json()['href']
             download_response = requests.get(download_url)
             with open(template_path, 'wb') as f:
                 f.write(download_response.content)
 
+            print('lalka')
             if last_reply_command == SIMPLE_DESIGN_COMMAND:
                 create_simple_template(image_path, output_path, template_path)
             elif last_reply_command == COMPLEX_DESIGN_COMMAND:
                 create_complex_template(image_path, output_path, template_path)
+            print('kek')
 
             # Sending message to chat
             msg1_id = await bot.send_message(message.chat.id, UPLOAD_PHOTO_SUCCESS_TEXT, reply_markup=reply_keyboard)
@@ -112,9 +116,9 @@ async def photo_or_doc_handler(message: types.Message):
                     {'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(msg3_id)}
                 ]
             ))
-        except Exception as e:
-            print('EXC: ', e)
-            pass
+    except Exception as e:
+        print(e)
+        pass
 
 
 @dp.message_handler(lambda message: message.text not in
@@ -123,7 +127,6 @@ async def reply_non_command_handler(message):
     await bot.delete_message(message.chat.id, message.message_id)
 
 
-# noinspection PyBroadException
 @dp.message_handler(lambda message: message.text == SIMPLE_DESIGN_COMMAND)
 async def reply_simple_design_command_handler(message: types.Message):
     try:
@@ -166,12 +169,10 @@ async def reply_simple_design_command_handler(message: types.Message):
             # Delete old messages
             await bot.delete_message(message.chat.id, message.message_id)
             await delete_old_messages(s, old_messages)
-    except Exception as e:
-        print('EXCE: ', e)
+    except:
         pass
 
 
-# noinspection PyBroadException
 @dp.message_handler(lambda message: message.text == COMPLEX_DESIGN_COMMAND)
 async def reply_complex_design_command_handler(message: types.Message):
     try:
@@ -218,10 +219,8 @@ async def reply_complex_design_command_handler(message: types.Message):
         pass
 
 
-# noinspection DuplicatedCode
 @dp.message_handler(lambda message: message.text == FAVORITE_COMMAND)
 async def reply_favorite_command_handler(message: types.Message):
-    # noinspection PyBroadException
     try:
         with session_scope() as s:
             # Set overview to True
@@ -276,7 +275,6 @@ async def reply_favorite_command_handler(message: types.Message):
 
 @dp.message_handler(lambda message: message.text == HELP_COMMAND)
 async def reply_help_command_handler(message: types.Message):
-    # noinspection PyBroadException
     try:
         with session_scope() as s:
             # Set overview to True
@@ -319,5 +317,6 @@ async def reply_help_command_handler(message: types.Message):
             # Delete old messages
             await bot.delete_message(message.chat.id, message.message_id)
             await delete_old_messages(s, old_messages)
-    except:
+    except Exception as e:
+        print(e)
         pass

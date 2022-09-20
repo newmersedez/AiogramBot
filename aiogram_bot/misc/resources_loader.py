@@ -24,17 +24,6 @@ class ResourceLoader:
         return sheet
 
     @staticmethod
-    async def get_images_count(resource_type: str, resource_path=RESOURCES_PATH):
-        sheet = await ResourceLoader.__read_sheet(resource_type, resource_path)
-        return len(sheet)
-
-    @staticmethod
-    async def get_favorites_count(user_id: int):
-        with session_scope() as s:
-            request = s.query(UserFavorites).filter(UserFavorites.user_id == user_id).all()
-            return len(request)
-
-    @staticmethod
     async def load_images(resource_type: str, resource_index=0, resource_path=RESOURCES_PATH):
         sheet = await ResourceLoader.__read_sheet(resource_type, resource_path)
         if sheet is None:

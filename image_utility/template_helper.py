@@ -4,8 +4,8 @@ from image_utility.bg import remove_image_background
 SIMPLE_TEMPLATE_HEIGHT = 1200
 SIMPLE_TEMPLATE_WIDTH = 900
 
-COMPLEX_TEMPLATE_HEIGHT = 660
-COMPLEX_TEMPLATE_WIDTH = 800
+COMPLEX_TEMPLATE_HEIGHT = 1200
+COMPLEX_TEMPLATE_WIDTH = 900
 
 COMPLEX_TEMPLATE_IMAGE_X = 450
 COMPLEX_TEMPLATE_IMAGE_Y = 750
@@ -23,7 +23,7 @@ def resize_for_complex_template(image_path: str, base_width=COMPLEX_TEMPLATE_WID
 
     image = remove_image_background(image_path)
 
-    image_components = image.split()
+    # image_components = image.split()
     rgb_image = Image.new("RGB", image.size, (0, 0, 0))
     rgb_image.paste(image)
     # rgb_image.paste(image, mask=image_components[3])

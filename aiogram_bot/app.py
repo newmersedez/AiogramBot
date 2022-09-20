@@ -9,7 +9,3 @@ from aiogram_bot.handlers import (
 
 def start():
     executor.start_polling(dp, skip_updates=True)
-
-#
-# if __name__ == '__main__':
-#     executor.start_polling(dp, skip_updates=True)

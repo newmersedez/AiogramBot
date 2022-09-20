@@ -1,6 +1,10 @@
+import os.path
+
 from aiogram import types
 from sqlalchemy import insert, update, delete, and_
 
+from aiogram_bot.misc import BOT_ADMIN
+from aiogram_bot.config import IMAGES_DIR
 from aiogram_bot.keyboards import reply_keyboard
 from aiogram_bot.models import User, Message, UserFavorites
 from aiogram_bot.handlers import delete_old_messages, get_actual_message
@@ -39,15 +43,20 @@ from aiogram_bot.commands import (
     RETURN_COMMAND,
     INSTRUCTION_COMMAND,
     UPLOAD_NEW_IMAGE_COMMAND,
+    CONNECT_DESIGNER_COMMAND,
 
     NO_FAVORITE_MESSAGE_TEXT,
     OVERVIEW_STARTUP_TEXT,
-    OVERVIEW_LOAD_PHOTO_TEXT,
+    UPLOAD_PHOTO_TEXT,
     DESIGN_STARTUP_TEXT,
     DESIGN_DESCRIPTION_TEXT,
     INSTRUCTION_TEXT,
     UPLOAD_PHOTO_TEXT,
-    HELP_DESCRIPTION_TEXT
+    HELP_DESCRIPTION_TEXT,
+    ORDERED_MESSAGE_TEXT,
+    NEW_ORDER_MESSAGE_TEXT,
+    NEW_ORDER_MESSAGE_WITHOUT_PHOTO_TEXT,
+    CONNECT_DESIGNER_MESSAGE_TEXT
 )
 
 
@@ -98,7 +107,7 @@ async def inline_overview_design_command_handler(callback_query: types.CallbackQ
         msg1_id = await bot.send_message(
             callback_query.message.chat.id, OVERVIEW_STARTUP_TEXT, reply_markup=reply_keyboard)
         msg2_id = await bot.send_message(
-            callback_query.message.chat.id, OVERVIEW_LOAD_PHOTO_TEXT, reply_markup=overview_keyboard)
+            callback_query.message.chat.id, UPLOAD_PHOTO_TEXT, reply_markup=overview_keyboard)
         s.execute(insert(Message).values(
                 [
                     {'user_id': callback_query.from_user.id,
@@ -118,7 +127,52 @@ async def inline_overview_design_command_handler(callback_query: types.CallbackQ
 
 @dp.callback_query_handler(lambda c: c.data and (c.data == ORDER_COMMAND or c.data == ORDER_DESIGN_COMMAND))
 async def inline_order_command_handler(callback_query: types.CallbackQuery):
-    pass
+    with session_scope() as s:
+        # Get user info
+        user_request = s.query(User).filter(User.user_id == callback_query.from_user.id).first()
+        if user_request is None:
+            return
+
+        # Send message to admin
+        if user_request.last_reply_command == HELP_COMMAND:
+            data, _ = await ResourceLoader.load_images(ResourceType.Help, user_request.last_index)
+            if data is None:
+                return
+            media = list()
+            for i in range(0, 2):
+                media.append(types.InputMediaPhoto(data[i], f'Example {i}'))
+            await bot.send_message(BOT_ADMIN, NEW_ORDER_MESSAGE_TEXT.format(callback_query.from_user.username))
+            await bot.send_media_group(BOT_ADMIN, media)
+        else:
+            if os.path.exists(fr'{IMAGES_DIR}\{callback_query.from_user.id}_result.png'):
+                result_photo = types.InputFile(fr'{IMAGES_DIR}\{callback_query.from_user.id}_result.png')
+                await bot.send_message(BOT_ADMIN, NEW_ORDER_MESSAGE_TEXT.format(callback_query.from_user.username))
+                await bot.send_photo(BOT_ADMIN, photo=result_photo)
+            else:
+                await bot.send_message(
+                    BOT_ADMIN, NEW_ORDER_MESSAGE_WITHOUT_PHOTO_TEXT.format(callback_query.from_user.username)
+                )
+
+            if os.path.exists(fr'{IMAGES_DIR}\{callback_query.from_user.id}.png'):
+                os.remove(fr'{IMAGES_DIR}\{callback_query.from_user.id}.png')
+            if os.path.exists(fr'{IMAGES_DIR}\{callback_query.from_user.id}_result.png'):
+                os.remove(fr'{IMAGES_DIR}\{callback_query.from_user.id}_result.png')
+            if os.path.exists(fr'{IMAGES_DIR}\{callback_query.from_user.id}_template.png'):
+                os.remove(fr'{IMAGES_DIR}\{callback_query.from_user.id}_template.png')
+
+        # Send message about order status to user
+        msg_id = await bot.send_message(callback_query.from_user.id, ORDERED_MESSAGE_TEXT)
+        s.execute(
+            insert(Message).values(
+                user_id=callback_query.from_user.id,
+                chat_id=callback_query.message.chat.id,
+                message_id=int(msg_id))
+        )
+
+
+@dp.callback_query_handler(lambda c: c.data and c.data == CONNECT_DESIGNER_COMMAND)
+async def inline_connect_designer_command_handler(callback_query: types.CallbackQuery):
+    await bot.send_message(BOT_ADMIN, CONNECT_DESIGNER_MESSAGE_TEXT.format(callback_query.from_user.username))
 
 
 @dp.callback_query_handler(lambda c: c.data and c.data == RETURN_COMMAND)
@@ -233,7 +287,8 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                 data, is_last_index = await ResourceLoader.load_favorites(callback_query.from_user.id, new_index)
             if data is None:
                 return
-        except:
+        except Exception as e:
+            # print('EXC1: ', e)
             return
 
         # Update user last_index and image messages
@@ -255,8 +310,9 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                         callback_query.message.chat.id, message_request[i].message_id)
                 await bot.edit_message_text(DESIGN_DESCRIPTION_TEXT.format(data[5], data[6]),
                                             callback_query.message.chat.id, message_request[-1].message_id)
-        except:
-            pass
+        except Exception as e:
+            # print('EXC2: ', e)
+            return
 
         # Updating keyboard
         try:
@@ -282,7 +338,7 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                 await bot.edit_message_reply_markup(
                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup)
             else:
-                if last_index == 0:
+                if last_index >= 0:
                     if last_reply_command == FAVORITE_COMMAND:
                         markup = favorite_view_keyboard
                         s.execute(
@@ -306,8 +362,9 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                         )
                 await bot.edit_message_reply_markup(
                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup)
-        except:
-            pass
+        except Exception as e:
+            # print('EXC3: ', e)
+            return
 
 
 @dp.callback_query_handler(lambda c: c.data and c.data == PREV_COMMAND)
@@ -353,7 +410,8 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
                         callback_query.message.chat.id, message_request[i].message_id)
                 await bot.edit_message_text(DESIGN_DESCRIPTION_TEXT.format(data[5], data[6]),
                     callback_query.message.chat.id, message_request[-1].message_id)
-        except:
+        except Exception as e:
+            print('inline_prev_design_command_handler: ', e)
             pass
 
         # Updating keyboard
@@ -400,7 +458,8 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
                     )
                 await bot.edit_message_reply_markup(
                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup)
-        except:
+        except Exception as e:
+            print('inline_prev_design_command_handler2: ', e)
             pass
 
 
@@ -445,7 +504,8 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
                         callback_query.message.chat.id, message_request[i].message_id)
                 await bot.edit_message_text(DESIGN_DESCRIPTION_TEXT.format(data[5], data[6]),
                                             callback_query.message.chat.id, message_request[-1].message_id)
-        except:
+        except Exception as e:
+            print('inline_to_start_command_handler: ', e)
             pass
 
         # Edit keyboard
@@ -471,7 +531,8 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
             await bot.edit_message_reply_markup(
                 callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup
             )
-        except:
+        except Exception as e:
+            print('inline_to_start_command_handler: ', e)
             pass
 
 

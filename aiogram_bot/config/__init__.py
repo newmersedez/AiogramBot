@@ -10,11 +10,6 @@ from .app_config import (
     MISC_DIR,
     MODELS_DIR,
     RESOURCES_DIR,
-    IMAGES_DIR
-)
-
-from .bot_config import (
-    BOT_TOKEN,
-    DATABASE_SQLALCHEMY_PATH,
+    IMAGES_DIR,
     RESOURCES_PATH
 )

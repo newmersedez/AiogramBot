@@ -9,9 +9,10 @@ from image_utility.template_helper import (
     COMPLEX_TEMPLATE_IMAGE_Y
 )
 
-ROOT_DIR = os.path.abspath(os.path.pardir)
-IMAGE_UTILITY_DIR = os.path.join(ROOT_DIR, 'image_utility')
-IMAGES_DIR = os.path.join(IMAGE_UTILITY_DIR, 'images')
+
+ROOT_DIR = os.path.abspath(os.path.curdir)
+IMAGE_UTILITY_PACKAGE_DIR = os.path.join(ROOT_DIR, 'image_utility')
+IMAGES_DIR = os.path.join(IMAGE_UTILITY_PACKAGE_DIR, 'images')
 WATERMARK_PATH = os.path.join(IMAGES_DIR, 'watermark.png')
 
 

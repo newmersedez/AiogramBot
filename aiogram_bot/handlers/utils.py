@@ -2,7 +2,7 @@ from typing import Type
 from aiogram import types
 from sqlalchemy import delete, update
 
-from aiogram_bot.misc.db_connection import DBSession
+from aiogram_bot.misc.db_connection import DBSession, session_scope
 from aiogram_bot.misc.bot_connection import bot
 
 from aiogram_bot.models.message import Message
@@ -14,12 +14,17 @@ async def get_actual_message(session: Type[DBSession], user_id: int):
 
 
 async def delete_old_messages(session: Type[DBSession], messages: list):
-    try:
-        for message in messages:
+    for message in messages:
+        try:
             await bot.delete_message(message.chat_id, message.message_id)
             session.execute(delete(Message).filter(Message.message_id == message.message_id))
-    except:
-        pass
+        except Exception as e:
+            print('delete_old_messagess: ', e)
+            print('delete_old_messages: ', message)
+            with session_scope() as s:
+                s.execute(
+                    delete(Message).filter(Message.message_id == message.message_id)
+                )
 
 
 async def reply_handler_set_defaults(session: Type[DBSession], message: types.Message, index: int, command: str):

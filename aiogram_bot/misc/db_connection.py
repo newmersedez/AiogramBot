@@ -32,7 +32,6 @@ def session_scope():
         yield session
         session.commit()
     except Exception as e:
-        print('session_scope: ', e)
         session.rollback()
         raise e
     finally:

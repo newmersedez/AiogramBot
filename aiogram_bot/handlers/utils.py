@@ -18,9 +18,7 @@ async def delete_old_messages(session: Type[DBSession], messages: list):
         try:
             await bot.delete_message(message.chat_id, message.message_id)
             session.execute(delete(Message).filter(Message.message_id == message.message_id))
-        except Exception as e:
-            print('delete_old_messagess: ', e)
-            print('delete_old_messages: ', message)
+        except:
             with session_scope() as s:
                 s.execute(
                     delete(Message).filter(Message.message_id == message.message_id)

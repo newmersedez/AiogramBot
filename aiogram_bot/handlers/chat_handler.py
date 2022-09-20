@@ -49,7 +49,5 @@ async def chat_start_command_handler(message: types.Message):
             # Delete old messages
             await bot.delete_message(message.chat.id, message.message_id)
             await delete_old_messages(s, old_messages)
-    except Exception as e:
-        print('EXC: ', e)
+    except:
         await bot.delete_message(message.chat.id, message.message_id)
-        pass

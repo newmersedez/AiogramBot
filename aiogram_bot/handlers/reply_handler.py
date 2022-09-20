@@ -113,8 +113,7 @@ async def reply_image_send_handler(message: types.Message):
                     {'user_id': message.from_user.id, 'chat_id': message.chat.id, 'message_id': int(msg3_id)}
                 ]
             ))
-    except Exception as e:
-        print('reply_image_send_handler: ', e)
+    except:
         await bot.delete_message(message.chat.id, message.message_id)
 
 
@@ -166,8 +165,7 @@ async def reply_simple_design_command_handler(message: types.Message):
             # Delete old messages
             await bot.delete_message(message.chat.id, message.message_id)
             await delete_old_messages(s, old_messages)
-    except Exception as e:
-        print('reply_simple_design_command_handler: ', e)
+    except:
         await bot.delete_message(message.chat.id, message.message_id)
 
 
@@ -213,8 +211,7 @@ async def reply_complex_design_command_handler(message: types.Message):
             # Delete old messages
             await bot.delete_message(message.chat.id, message.message_id)
             await delete_old_messages(s, old_messages)
-    except Exception as e:
-        print('reply_complex_design_command_handler: ', e)
+    except:
         await bot.delete_message(message.chat.id, message.message_id)
 
 
@@ -268,8 +265,7 @@ async def reply_favorite_command_handler(message: types.Message):
             # Delete old messages
             await bot.delete_message(message.chat.id, message.message_id)
             await delete_old_messages(s, old_messages)
-    except Exception as e:
-        print('reply_favorite_command_handler: ', e)
+    except:
         await bot.delete_message(message.chat.id, message.message_id)
 
 
@@ -317,7 +313,6 @@ async def reply_help_command_handler(message: types.Message):
             # Delete old messages
             await bot.delete_message(message.chat.id, message.message_id)
             await delete_old_messages(s, old_messages)
-    except Exception as e:
-        print('reply_help_command_handler: ', e)
+    except:
         await bot.delete_message(message.chat.id, message.message_id)
 

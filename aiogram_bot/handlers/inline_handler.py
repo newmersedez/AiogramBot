@@ -47,7 +47,6 @@ from aiogram_bot.commands import (
 
     NO_FAVORITE_MESSAGE_TEXT,
     OVERVIEW_STARTUP_TEXT,
-    UPLOAD_PHOTO_TEXT,
     DESIGN_STARTUP_TEXT,
     DESIGN_DESCRIPTION_TEXT,
     INSTRUCTION_TEXT,
@@ -287,13 +286,20 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                 data, is_last_index = await ResourceLoader.load_favorites(callback_query.from_user.id, new_index)
             if data is None:
                 return
-        except Exception as e:
-            # print('EXC1: ', e)
+        except:
             return
 
         # Update user last_index and image messages
         s.execute(update(User).where(User.user_id == callback_query.from_user.id).values(last_index=new_index))
         message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
+
+        messages_count = 6
+        if last_reply_command == HELP_COMMAND:
+            messages_count -= 1
+        if len(message_request) > messages_count:
+            messages_to_delete = message_request[messages_count:]
+            message_request = message_request[:messages_count]
+            await delete_old_messages(s, messages_to_delete)
 
         try:
             if last_reply_command == HELP_COMMAND:
@@ -310,8 +316,7 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                         callback_query.message.chat.id, message_request[i].message_id)
                 await bot.edit_message_text(DESIGN_DESCRIPTION_TEXT.format(data[5], data[6]),
                                             callback_query.message.chat.id, message_request[-1].message_id)
-        except Exception as e:
-            # print('EXC2: ', e)
+        except:
             return
 
         # Updating keyboard
@@ -362,8 +367,7 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                         )
                 await bot.edit_message_reply_markup(
                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup)
-        except Exception as e:
-            # print('EXC3: ', e)
+        except:
             return
 
 
@@ -395,6 +399,14 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
         s.execute(update(User).where(User.user_id == callback_query.from_user.id).values(last_index=new_index))
         message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
 
+        messages_count = 6
+        if last_reply_command == HELP_COMMAND:
+            messages_count -= 1
+        if len(message_request) > messages_count:
+            messages_to_delete = message_request[messages_count:]
+            message_request = message_request[:messages_count]
+            await delete_old_messages(s, messages_to_delete)
+
         try:
             if last_reply_command == HELP_COMMAND:
                 for i in range(2, 4):
@@ -410,8 +422,7 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
                         callback_query.message.chat.id, message_request[i].message_id)
                 await bot.edit_message_text(DESIGN_DESCRIPTION_TEXT.format(data[5], data[6]),
                     callback_query.message.chat.id, message_request[-1].message_id)
-        except Exception as e:
-            print('inline_prev_design_command_handler: ', e)
+        except:
             pass
 
         # Updating keyboard
@@ -458,8 +469,7 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
                     )
                 await bot.edit_message_reply_markup(
                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup)
-        except Exception as e:
-            print('inline_prev_design_command_handler2: ', e)
+        except:
             pass
 
 
@@ -489,6 +499,14 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
         s.execute(update(User).where(User.user_id == callback_query.from_user.id).values(last_index=0))
         message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
 
+        messages_count = 6
+        if last_reply_command == HELP_COMMAND:
+            messages_count -= 1
+        if len(message_request) > messages_count:
+            messages_to_delete = message_request[messages_count:]
+            message_request = message_request[:messages_count]
+            await delete_old_messages(s, messages_to_delete)
+
         try:
             if last_reply_command == HELP_COMMAND:
                 for i in range(2, 4):
@@ -504,8 +522,7 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
                         callback_query.message.chat.id, message_request[i].message_id)
                 await bot.edit_message_text(DESIGN_DESCRIPTION_TEXT.format(data[5], data[6]),
                                             callback_query.message.chat.id, message_request[-1].message_id)
-        except Exception as e:
-            print('inline_to_start_command_handler: ', e)
+        except:
             pass
 
         # Edit keyboard
@@ -531,8 +548,7 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
             await bot.edit_message_reply_markup(
                 callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup
             )
-        except Exception as e:
-            print('inline_to_start_command_handler: ', e)
+        except:
             pass
 
 

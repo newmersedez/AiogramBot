@@ -25,14 +25,15 @@ DBSession = sessionmaker(
 )
 
 
-@contextmanager
-def session_scope():
-    session = DBSession()
-    try:
-        yield session
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        raise e
-    finally:
-        session.close()
+# @contextmanager
+# def session_scope():
+#     session = DBSession()
+#     try:
+#         yield session
+#         session.commit()
+#     except Exception as e:
+#         print('session_scope exc: ', e)
+#         # session.rollback()
+#         # raise e
+#     finally:
+#         session.close()

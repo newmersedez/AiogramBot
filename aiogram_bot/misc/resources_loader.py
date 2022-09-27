@@ -1,6 +1,6 @@
 import pandas as pd
 
-from aiogram_bot.misc import session_scope
+from aiogram_bot.misc import DBSession
 from aiogram_bot.config import RESOURCES_PATH
 from aiogram_bot.models import UserFavorites
 
@@ -37,7 +37,8 @@ class ResourceLoader:
 
     @staticmethod
     async def load_favorites(user_id: int, resource_index=0):
-        with session_scope() as s:
+        s = DBSession()
+        try:
             last_index = False
             request = s.query(UserFavorites).filter(UserFavorites.user_id == user_id).all()
             if request is None or len(request) == 0:
@@ -46,3 +47,5 @@ class ResourceLoader:
             if resource_index == len(data) - 1:
                 last_index = True
             return data[resource_index], last_index
+        finally:
+            s.close()

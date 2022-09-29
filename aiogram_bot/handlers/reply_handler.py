@@ -1,4 +1,5 @@
 import requests
+import os
 from aiogram import types
 from urllib.parse import urlencode
 from sqlalchemy import insert, update, and_
@@ -55,13 +56,13 @@ async def reply_image_send_handler(message: types.Message):
             return
 
         if message.content_type == 'photo':
-            await message.photo[-1].download(destination_file=fr'{IMAGES_DIR}\{message.from_user.id}.png')
+            await message.photo[-1].download(destination_file=os.path.join(IMAGES_DIR, f'{message.from_user.id}.png'))
         elif message.content_type == 'document':
             file_extension = message.document.file_name.split('.')[1]
             if file_extension not in ('png', 'jpg', 'bmp'):
                 await bot.delete_message(message.chat.id, message.message_id)
                 return
-            await message.document.download(destination_file=fr'{IMAGES_DIR}\{message.from_user.id}.png')
+            await message.document.download(destination_file=os.path.join(IMAGES_DIR, f'{message.from_user.id}.png'))
         s.execute(
             insert(Message).values(
                 user_id=message.from_user.id,
@@ -74,9 +75,9 @@ async def reply_image_send_handler(message: types.Message):
         # Creating image
         user_request = s.query(User).filter(User.user_id == message.from_user.id).first()
         last_reply_command = user_request.last_reply_command
-        image_path = fr'{IMAGES_DIR}\{message.from_user.id}.png'
-        output_path = fr'{IMAGES_DIR}\{message.from_user.id}_result.png'
-        template_path = fr'{IMAGES_DIR}\{message.from_user.id}_template.png'
+        image_path = os.path.join(IMAGES_DIR, f'{message.from_user.id}.png')
+        output_path = os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png')
+        template_path = os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png')
 
         data = None
         if last_reply_command == FAVORITE_COMMAND:

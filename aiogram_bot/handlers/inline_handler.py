@@ -167,8 +167,8 @@ async def inline_order_command_handler(callback_query: types.CallbackQuery):
             await bot.send_message(BOT_ADMIN, NEW_ORDER_MESSAGE_TEXT.format(callback_query.from_user.username))
             await bot.send_media_group(BOT_ADMIN, media)
         else:
-            if os.path.exists(fr'{IMAGES_DIR}\{callback_query.from_user.id}_result.png'):
-                result_photo = types.InputFile(fr'{IMAGES_DIR}\{callback_query.from_user.id}_result.png')
+            if os.path.exists(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_result.png')):
+                result_photo = types.InputFile(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_result.png'))
                 await bot.send_message(BOT_ADMIN, NEW_ORDER_MESSAGE_TEXT.format(callback_query.from_user.username))
                 await bot.send_photo(BOT_ADMIN, photo=result_photo)
             else:
@@ -176,12 +176,12 @@ async def inline_order_command_handler(callback_query: types.CallbackQuery):
                     BOT_ADMIN, NEW_ORDER_MESSAGE_WITHOUT_PHOTO_TEXT.format(callback_query.from_user.username)
                 )
 
-            if os.path.exists(fr'{IMAGES_DIR}\{callback_query.from_user.id}.png'):
-                os.remove(fr'{IMAGES_DIR}\{callback_query.from_user.id}.png')
-            if os.path.exists(fr'{IMAGES_DIR}\{callback_query.from_user.id}_result.png'):
-                os.remove(fr'{IMAGES_DIR}\{callback_query.from_user.id}_result.png')
-            if os.path.exists(fr'{IMAGES_DIR}\{callback_query.from_user.id}_template.png'):
-                os.remove(fr'{IMAGES_DIR}\{callback_query.from_user.id}_template.png')
+            if os.path.exists(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}.png')):
+                os.remove(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}.png'))
+            if os.path.exists(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_result.png')):
+                os.remove(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_result.png'))
+            if os.path.exists(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_template.png')):
+                os.remove(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_template.png'))
 
         # Send message about order status to user
         msg_id = await bot.send_message(callback_query.from_user.id, ORDERED_MESSAGE_TEXT)

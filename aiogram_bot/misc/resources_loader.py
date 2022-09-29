@@ -9,6 +9,7 @@ class ResourceType:
     Simple = 'simple_type'
     Complex = 'complex_type'
     Help = 'help_type'
+    Example = 'example_type'
 
 
 class ResourceLoader:
@@ -21,6 +22,8 @@ class ResourceLoader:
             sheet = pd.read_excel(resource_path, sheet_name=1)
         elif resource_type == ResourceType.Help:
             sheet = pd.read_excel(resource_path, sheet_name=2)
+        elif resource_type == ResourceType.Example:
+            sheet = pd.read_excel(resource_path, sheet_name=3)
         return sheet
 
     @staticmethod

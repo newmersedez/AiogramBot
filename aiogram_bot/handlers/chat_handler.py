@@ -53,7 +53,7 @@ async def chat_start_command_handler(message: types.Message):
         await bot.delete_message(message.chat.id, message.message_id)
         await delete_old_messages(s, old_messages)
     except Exception as e:
-        print('chat start exc: ', e)
+        # print('chat start exc: ', e)
         await bot.delete_message(message.chat.id, message.message_id)
     finally:
         s.close()

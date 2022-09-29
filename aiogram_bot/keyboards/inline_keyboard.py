@@ -125,5 +125,5 @@ keyboards_dict = {
     'help_keyboard': help_keyboard,
     'help_view_keyboard': help_view_keyboard,
     'help_to_start_keyboard': help_to_start_keyboard,
-    'instruction_keyboard': overview_keyboard
+    'instruction_keyboard': overview_keyboard,
 }

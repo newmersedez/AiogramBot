@@ -8,3 +8,8 @@ class UserFavorites(Base):
     user_id = sa.Column(sa.Integer, nullable=False)
     resource = sa.Column(sa.Text, nullable=False)
     resource_type = sa.Column(sa.Text, nullable=False)
+
+    def __str__(self):
+        return f'user_id = {self.user_id}, ' \
+               f'resource = {self.resource}, ' \
+               f'resource_type = {self.resource_type}'

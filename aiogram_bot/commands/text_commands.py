@@ -67,6 +67,9 @@ NEW_ORDER_MESSAGE_WITHOUT_PHOTO_TEXT = \
 CONNECT_DESIGNER_MESSAGE_TEXT =\
     '‼{} хочет связаться с дизайнером'
 
+EXAMPLES_MESSAGE_TEXT = \
+    'Ниже приведены примеры работ 👇'
+
 
 # --- Buttons text ---
 INLINE_OVERVIEW_BUTTON_TEXT = 'Посмотреть с моим товаром'

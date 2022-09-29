@@ -29,6 +29,7 @@ from aiogram_bot.commands import (
     COMPLEX_DESIGN_COMMAND,
     FAVORITE_COMMAND,
     HELP_COMMAND,
+    EXAMPLES_COMMAND,
 
     OVERVIEW_DESIGN_COMMAND,
     ORDER_COMMAND,
@@ -73,15 +74,15 @@ async def inline_upload_new_image_command_handler(callback_query: types.Callback
         )
         s.commit()
     except Exception as e:
-        print('inline_upload_new_image_command_handler exc: ', e)
+        # print('inline_upload_new_image_command_handler exc: ', e)
+        pass
     finally:
         s.close()
 
 
-
 @dp.callback_query_handler(lambda c: c.data and c.data == INSTRUCTION_COMMAND)
 async def inline_instruction_command_handler(callback_query: types.CallbackQuery):
-    s = DBSession
+    s = DBSession()
     try:
         # Get old messages
         old_messages = await get_actual_message(s, callback_query.from_user.id)
@@ -101,7 +102,8 @@ async def inline_instruction_command_handler(callback_query: types.CallbackQuery
         # Delete old messages
         await delete_old_messages(s, old_messages)
     except Exception as e:
-        print('inline_upload_new_image_command_handler exc: ', e)
+        # print('inline_upload_new_image_command_handler exc: ', e)
+        pass
     finally:
         s.close()
 
@@ -139,7 +141,8 @@ async def inline_overview_design_command_handler(callback_query: types.CallbackQ
         # await bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
         await delete_old_messages(s, old_messages)
     except Exception as e:
-        print('inline_overview_design_command_handler exc: ', e)
+        # print('inline_overview_design_command_handler exc: ', e)
+        pass
     finally:
         s.close()
 
@@ -190,7 +193,8 @@ async def inline_order_command_handler(callback_query: types.CallbackQuery):
         )
         s.commit()
     except Exception as e:
-        print('inline_order_command_handler exc: ', e)
+        # print('inline_order_command_handler exc: ', e)
+        pass
     finally:
         s.close()
 
@@ -225,6 +229,8 @@ async def inline_return_command_handler(callback_query: types.CallbackQuery):
             data, _ = await ResourceLoader.load_images(ResourceType.Complex, user_request.last_index)
         elif last_reply_command == FAVORITE_COMMAND:
             data, _ = await ResourceLoader.load_favorites(callback_query.from_user.id, user_request.last_index)
+        elif last_reply_command == EXAMPLES_COMMAND:
+            data, _ = await ResourceLoader.load_images(ResourceType.Example, user_request.last_index)
         if data is None:
             return
 
@@ -254,7 +260,8 @@ async def inline_return_command_handler(callback_query: types.CallbackQuery):
         # await bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
         await delete_old_messages(s, old_messages)
     except Exception as e:
-        print('inline_return_command_handler exc: ', e)
+        # print('inline_return_command_handler exc: ', e)
+        pass
     finally:
         s.close()
 
@@ -270,13 +277,14 @@ async def inline_to_favorite_command_handler(callback_query: types.CallbackQuery
 
         # Get data using ResourceLoader
         data = None
+        last_index = user_request.last_index
         last_reply_command = user_request.last_reply_command
         if last_reply_command == SIMPLE_DESIGN_COMMAND:
-            data, _ = await ResourceLoader.load_images(ResourceType.Simple, user_request.last_index)
+            data, is_last_index = await ResourceLoader.load_images(ResourceType.Simple, user_request.last_index)
         elif last_reply_command == COMPLEX_DESIGN_COMMAND:
-            data, _ = await ResourceLoader.load_images(ResourceType.Complex, user_request.last_index)
+            data, is_last_index = await ResourceLoader.load_images(ResourceType.Complex, user_request.last_index)
         elif last_reply_command == FAVORITE_COMMAND:
-            data, _ = await ResourceLoader.load_favorites(callback_query.from_user.id, user_request.last_index)
+            data, is_last_index = await ResourceLoader.load_favorites(callback_query.from_user.id, user_request.last_index)
         if data is None:
             return
 
@@ -294,8 +302,41 @@ async def inline_to_favorite_command_handler(callback_query: types.CallbackQuery
                 )
             )
             s.commit()
+
+        # Changing keyboard
+        try:
+            message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
+            if is_last_index is True:
+                markup = favorite_to_start_keyboard
+                s.execute(
+                    update(User).where(User.user_id == callback_query.from_user.id).values(
+                        last_keyboard='favorite_to_start_keyboard')
+                )
+                s.commit()
+            else:
+                if last_index == 0:
+                    markup = favorite_keyboard
+                    s.execute(
+                        update(User).where(
+                            User.user_id == callback_query.from_user.id).values(
+                            last_keyboard='favorite_keyboard')
+                    )
+                    s.commit()
+                elif last_index > 0:
+                    markup = favorite_view_keyboard
+                    s.execute(
+                        update(User).where(
+                            User.user_id == callback_query.from_user.id).values(
+                            last_keyboard='favorite_view_keyboard')
+                    )
+                    s.commit()
+            await bot.edit_message_reply_markup(
+                callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup)
+        except:
+            return
     except Exception as e:
-        print('inline_to_favorite_command_handler exc: ', e)
+        # print('inline_to_favorite_command_handler exc: ', e)
+        pass
     finally:
         s.close()
 
@@ -324,9 +365,11 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                 data, is_last_index = await ResourceLoader.load_images(ResourceType.Help, new_index)
             elif last_reply_command == FAVORITE_COMMAND:
                 data, is_last_index = await ResourceLoader.load_favorites(callback_query.from_user.id, new_index)
+            elif last_reply_command == EXAMPLES_COMMAND:
+                data, is_last_index = await ResourceLoader.load_images(ResourceType.Example, new_index)
             if data is None:
                 return
-        except:
+        except Exception as e:
             return
 
         # Update user last_index and image messages
@@ -337,6 +380,8 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
         messages_count = 6
         if last_reply_command == HELP_COMMAND:
             messages_count -= 1
+        if last_reply_command == EXAMPLES_COMMAND:
+            messages_count -= 3
         if len(message_request) > messages_count:
             messages_to_delete = message_request[messages_count:]
             message_request = message_request[:messages_count]
@@ -350,6 +395,10 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                         callback_query.message.chat.id, message_request[i].message_id)
                 await bot.edit_message_text(HELP_DESCRIPTION_TEXT.format(data[2], data[3]),
                                             callback_query.message.chat.id, message_request[-1].message_id)
+            elif last_reply_command == EXAMPLES_COMMAND:
+                await bot.edit_message_media(
+                    types.InputMediaPhoto(data[0]),
+                    callback_query.message.chat.id, message_request[-2].message_id)
             else:
                 for i in range(1, 5):
                     await bot.edit_message_media(
@@ -357,11 +406,18 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                         callback_query.message.chat.id, message_request[i].message_id)
                 await bot.edit_message_text(DESIGN_DESCRIPTION_TEXT.format(data[5], data[6]),
                                             callback_query.message.chat.id, message_request[-1].message_id)
-        except:
+        except Exception as e:
             return
 
         # Updating keyboard
         try:
+            data_check = ','.join(data)
+            user_favorites = s.query(UserFavorites).filter(UserFavorites.user_id == callback_query.from_user.id)
+            in_favorite = False
+            for fav in user_favorites:
+                if data_check == fav.resource:
+                    in_favorite = True
+                    break
             if is_last_index is True:
                 if last_reply_command == FAVORITE_COMMAND:
                     markup = favorite_to_start_keyboard
@@ -370,7 +426,7 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                             last_keyboard='favorite_to_start_keyboard')
                     )
                     s.commit()
-                elif last_reply_command == HELP_COMMAND:
+                elif last_reply_command == HELP_COMMAND or last_reply_command == EXAMPLES_COMMAND:
                     markup = help_to_start_keyboard
                     s.execute(
                         update(User).where(User.user_id == callback_query.from_user.id).values(
@@ -378,12 +434,20 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                     )
                     s.commit()
                 else:
-                    markup = design_to_start_keyboard
-                    s.execute(
-                        update(User).where(User.user_id == callback_query.from_user.id).values(
-                            last_keyboard='design_to_start_keyboard')
-                    )
-                    s.commit()
+                    if in_favorite is True:
+                        markup = favorite_to_start_keyboard
+                        s.execute(
+                            update(User).where(User.user_id == callback_query.from_user.id).values(
+                                last_keyboard='favorite_to_start_keyboard')
+                        )
+                        s.commit()
+                    else:
+                        markup = design_to_start_keyboard
+                        s.execute(
+                            update(User).where(User.user_id == callback_query.from_user.id).values(
+                                last_keyboard='design_to_start_keyboard')
+                        )
+                        s.commit()
                 await bot.edit_message_reply_markup(
                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup)
             else:
@@ -396,7 +460,7 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                                 last_keyboard='favorite_view_keyboard')
                         )
                         s.commit()
-                    elif last_reply_command == HELP_COMMAND:
+                    elif last_reply_command == HELP_COMMAND or last_reply_command == EXAMPLES_COMMAND:
                         markup = help_view_keyboard
                         s.execute(
                             update(User).where(
@@ -405,19 +469,30 @@ async def inline_next_design_command_handler(callback_query: types.CallbackQuery
                         )
                         s.commit()
                     else:
-                        markup = design_view_keyboard
-                        s.execute(
-                            update(User).where(
-                                User.user_id == callback_query.from_user.id).values(
-                                last_keyboard='design_view_keyboard')
-                        )
-                        s.commit()
+                        if in_favorite is True:
+                            if last_index >= 0:
+                                markup = favorite_view_keyboard
+                                s.execute(
+                                    update(User).where(
+                                        User.user_id == callback_query.from_user.id).values(
+                                        last_keyboard='favorite_view_keyboard')
+                                )
+                                s.commit()
+                        else:
+                            markup = design_view_keyboard
+                            s.execute(
+                                update(User).where(
+                                    User.user_id == callback_query.from_user.id).values(
+                                    last_keyboard='design_view_keyboard')
+                            )
+                            s.commit()
                 await bot.edit_message_reply_markup(
                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup)
-        except:
+        except Exception as e:
             return
     except Exception as e:
-        print('inline_next_design_command_handler exc: ', e)
+        # print('inline_next_design_command_handler exc: ', e)
+        pass
     finally:
         s.close()
 
@@ -444,6 +519,8 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
             data, _ = await ResourceLoader.load_images(ResourceType.Help, new_index)
         elif last_reply_command == FAVORITE_COMMAND:
             data, _ = await ResourceLoader.load_favorites(callback_query.from_user.id, new_index)
+        elif last_reply_command == EXAMPLES_COMMAND:
+            data, _ = await ResourceLoader.load_images(ResourceType.Example, new_index)
         if data is None:
             return
 
@@ -455,6 +532,8 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
         messages_count = 6
         if last_reply_command == HELP_COMMAND:
             messages_count -= 1
+        if last_reply_command == EXAMPLES_COMMAND:
+            messages_count -= 3
         if len(message_request) > messages_count:
             messages_to_delete = message_request[messages_count:]
             message_request = message_request[:messages_count]
@@ -468,6 +547,10 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
                         callback_query.message.chat.id, message_request[i].message_id)
                 await bot.edit_message_text(HELP_DESCRIPTION_TEXT.format(data[2], data[3]),
                                             callback_query.message.chat.id, message_request[-1].message_id)
+            elif last_reply_command == EXAMPLES_COMMAND:
+                await bot.edit_message_media(
+                    types.InputMediaPhoto(data[0]),
+                    callback_query.message.chat.id, message_request[-2].message_id)
             else:
                 for i in range(1, 5):
                     await bot.edit_message_media(
@@ -480,6 +563,13 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
 
         # Updating keyboard
         try:
+            data_check = ','.join(data)
+            user_favorites = s.query(UserFavorites).filter(UserFavorites.user_id == callback_query.from_user.id)
+            in_favorite = False
+            for fav in user_favorites:
+                if data_check == fav.resource:
+                    in_favorite = True
+                    break
             if new_index == 0:
                 if last_reply_command == FAVORITE_COMMAND:
                     markup = favorite_keyboard
@@ -488,7 +578,7 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
                             last_keyboard='favorite_keyboard')
                     )
                     s.commit()
-                elif last_reply_command == HELP_COMMAND:
+                elif last_reply_command == HELP_COMMAND or last_reply_command == EXAMPLES_COMMAND:
                     markup = help_keyboard
                     s.execute(
                         update(User).where(User.user_id == callback_query.from_user.id).values(
@@ -496,12 +586,20 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
                     )
                     s.commit()
                 else:
-                    markup = design_keyboard
-                    s.execute(
-                        update(User).where(User.user_id == callback_query.from_user.id).values(
-                            last_keyboard='design_keyboard')
-                    )
-                    s.commit()
+                    if in_favorite is True:
+                        markup = favorite_keyboard
+                        s.execute(
+                            update(User).where(User.user_id == callback_query.from_user.id).values(
+                                last_keyboard='favorite_keyboard')
+                        )
+                        s.commit()
+                    else:
+                        markup = design_keyboard
+                        s.execute(
+                            update(User).where(User.user_id == callback_query.from_user.id).values(
+                                last_keyboard='design_keyboard')
+                        )
+                        s.commit()
                 await bot.edit_message_reply_markup(
                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup)
             else:
@@ -512,7 +610,7 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
                             last_keyboard='favorite_view_keyboard')
                     )
                     s.commit()
-                elif last_reply_command == HELP_COMMAND:
+                elif last_reply_command == HELP_COMMAND or last_reply_command == EXAMPLES_COMMAND:
                     markup = help_view_keyboard
                     s.execute(
                         update(User).where(User.user_id == callback_query.from_user.id).values(
@@ -520,18 +618,27 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
                     )
                     s.commit()
                 else:
-                    markup = design_view_keyboard
-                    s.execute(
-                        update(User).where(User.user_id == callback_query.from_user.id).values(
-                            last_keyboard='design_view_keyboard')
-                    )
-                    s.commit()
+                    if in_favorite is True:
+                        markup = favorite_view_keyboard
+                        s.execute(
+                            update(User).where(User.user_id == callback_query.from_user.id).values(
+                                last_keyboard='favorite_view_keyboard')
+                        )
+                        s.commit()
+                    else:
+                        markup = design_view_keyboard
+                        s.execute(
+                            update(User).where(User.user_id == callback_query.from_user.id).values(
+                                last_keyboard='design_view_keyboard')
+                        )
+                        s.commit()
                 await bot.edit_message_reply_markup(
                     callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup)
-        except:
+        except Exception as e:
             pass
     except Exception as e:
-        print('inline_prev_design_command_handler exc: ', e)
+        # print('inline_prev_design_command_handler exc: ', e)
+        pass
     finally:
         s.close()
 
@@ -556,6 +663,8 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
             data, _ = await ResourceLoader.load_images(ResourceType.Help)
         elif last_reply_command == FAVORITE_COMMAND:
             data, _ = await ResourceLoader.load_favorites(callback_query.from_user.id)
+        elif last_reply_command == EXAMPLES_COMMAND:
+            data, _ = await ResourceLoader.load_images(ResourceType.Example)
         if data is None:
             return
 
@@ -567,6 +676,8 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
         messages_count = 6
         if last_reply_command == HELP_COMMAND:
             messages_count -= 1
+        elif last_reply_command == EXAMPLES_COMMAND:
+            messages_count -= 3
         if len(message_request) > messages_count:
             messages_to_delete = message_request[messages_count:]
             message_request = message_request[:messages_count]
@@ -580,6 +691,10 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
                         callback_query.message.chat.id, message_request[i].message_id)
                 await bot.edit_message_text(HELP_DESCRIPTION_TEXT.format(data[2], data[3]),
                                             callback_query.message.chat.id, message_request[-1].message_id)
+            elif last_reply_command == EXAMPLES_COMMAND:
+                await bot.edit_message_media(
+                    types.InputMediaPhoto(data[0]),
+                    callback_query.message.chat.id, message_request[-2].message_id)
             else:
                 for i in range(1, 5):
                     await bot.edit_message_media(
@@ -592,6 +707,14 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
 
         # Edit keyboard
         try:
+            data_check = ','.join(data)
+            user_favorites = s.query(UserFavorites).filter(UserFavorites.user_id == callback_query.from_user.id)
+            in_favorite = False
+            for fav in user_favorites:
+                if data_check == fav.resource:
+                    in_favorite = True
+                    break
+
             if last_reply_command == FAVORITE_COMMAND:
                 markup = favorite_keyboard
                 s.execute(
@@ -599,7 +722,7 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
                         last_keyboard='favorite_keyboard')
                 )
                 s.commit()
-            elif last_reply_command == HELP_COMMAND:
+            elif last_reply_command == HELP_COMMAND or last_reply_command == EXAMPLES_COMMAND:
                 markup = help_keyboard
                 s.execute(
                     update(User).where(User.user_id == callback_query.from_user.id).values(
@@ -607,19 +730,28 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
                 )
                 s.commit()
             else:
-                markup = design_keyboard
-                s.execute(
-                    update(User).where(User.user_id == callback_query.from_user.id).values(
-                        last_keyboard='design_keyboard')
-                )
-                s.commit()
+                if in_favorite is True:
+                    markup = favorite_keyboard
+                    s.execute(
+                        update(User).where(User.user_id == callback_query.from_user.id).values(
+                            last_keyboard='favorite_keyboard')
+                    )
+                    s.commit()
+                else:
+                    markup = design_keyboard
+                    s.execute(
+                        update(User).where(User.user_id == callback_query.from_user.id).values(
+                            last_keyboard='design_keyboard')
+                    )
+                    s.commit()
             await bot.edit_message_reply_markup(
                 callback_query.message.chat.id, message_request[-1].message_id, reply_markup=markup
             )
-        except:
+        except Exception as e:
             pass
     except Exception as e:
-        print('inline_to_start_command_handler exc: ', e)
+        # print('inline_to_start_command_handler exc: ', e)
+        pass
     finally:
         s.close()
 
@@ -632,10 +764,16 @@ async def inline_delete_command_handler(callback_query: types.CallbackQuery):
         user_request = s.query(User).filter(User.user_id == callback_query.from_user.id).first()
         if user_request is None:
             return
+        message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
 
         # Get data using ResourceLoader
         last_index = user_request.last_index
-        data, is_last_index = await ResourceLoader.load_favorites(callback_query.from_user.id, last_index)
+        if user_request.last_reply_command == FAVORITE_COMMAND:
+            data, is_last_index = await ResourceLoader.load_favorites(callback_query.from_user.id, last_index)
+        elif user_request.last_reply_command == SIMPLE_DESIGN_COMMAND:
+            data, _ = await ResourceLoader.load_images(ResourceType.Simple, last_index)
+        elif user_request.last_reply_command == COMPLEX_DESIGN_COMMAND:
+            data, _ = await ResourceLoader.load_images(ResourceType.Complex, last_index)
         if data is None:
             return
 
@@ -647,10 +785,21 @@ async def inline_delete_command_handler(callback_query: types.CallbackQuery):
         )
         s.commit()
 
+        if user_request.last_reply_command == SIMPLE_DESIGN_COMMAND \
+                or user_request.last_reply_command == COMPLEX_DESIGN_COMMAND:
+            user_last_keyboard = user_request.last_keyboard.split('_', 1)
+            user_new_keyboard = 'design_' + user_last_keyboard[1]
+            await bot.edit_message_reply_markup(callback_query.message.chat.id, message_request[-1].message_id,
+                                                reply_markup=keyboards_dict[user_new_keyboard])
+            s.execute(
+                update(User).filter(User.user_id == callback_query.from_user.id).values(last_keyboard=user_new_keyboard)
+            )
+            s.commit()
+            return
+
         # Move last_index
         if is_last_index is True:
             if last_index == 0:
-                message_request = s.query(Message).filter(Message.user_id == callback_query.from_user.id).all()
                 for result in message_request:
                     await bot.delete_message(callback_query.message.chat.id, result.message_id)
                 s.execute(delete(Message).where(Message.user_id == callback_query.from_user.id))
@@ -675,6 +824,7 @@ async def inline_delete_command_handler(callback_query: types.CallbackQuery):
             s.commit()
             await inline_to_start_command_handler(callback_query)
     except Exception as e:
-        print('inline_delete_command_handler exc: ', e)
+        # print('inline_delete_command_handler exc: ', e)
+        pass
     finally:
         s.close()

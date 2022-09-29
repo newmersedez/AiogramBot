@@ -8,7 +8,7 @@ COMPLEX_TEMPLATE_HEIGHT = 1200
 COMPLEX_TEMPLATE_WIDTH = 900
 
 COMPLEX_TEMPLATE_IMAGE_X = 450
-COMPLEX_TEMPLATE_IMAGE_Y = 750
+COMPLEX_TEMPLATE_IMAGE_Y = 800
 
 
 def resize_for_complex_template(image_path: str, base_width=COMPLEX_TEMPLATE_WIDTH, base_height=COMPLEX_TEMPLATE_HEIGHT) -> Image:
@@ -23,24 +23,34 @@ def resize_for_complex_template(image_path: str, base_width=COMPLEX_TEMPLATE_WID
 
     image = remove_image_background(image_path)
 
-    # image_components = image.split()
+    image_components = image.split()
     rgb_image = Image.new("RGB", image.size, (0, 0, 0))
-    rgb_image.paste(image)
-    # rgb_image.paste(image, mask=image_components[3])
+    # rgb_image.paste(image)
+    rgb_image.paste(image, mask=image_components[3])
 
     image_box = image.getbbox()
     cropped_box = rgb_image.getbbox()
     if image_box != cropped_box:
         image = image.crop(cropped_box)
 
+    # aspect_ratio = float(image.width) / float(image.height)
+    # height = base_height
+    # width = int(height * aspect_ratio)
+    # if width <= base_width:
+    #     image = image.resize((width, height), Image.ANTIALIAS)
+    # else:
+    #     height = int(base_width / aspect_ratio)
+    #     image = image.resize((base_width, height), Image.ANTIALIAS)
+
     aspect_ratio = float(image.width) / float(image.height)
-    height = base_height
+    height = int(base_height / 2.3)
     width = int(height * aspect_ratio)
-    if width <= base_width:
-        image = image.resize((width, height), Image.ANTIALIAS)
-    else:
-        height = int(base_width / aspect_ratio)
-        image = image.resize((base_width, height), Image.ANTIALIAS)
+    image = image.resize((width, height), Image.ANTIALIAS)
+    # if width <= base_width:
+    #     image = image.resize((width, height), Image.ANTIALIAS)
+    # else:
+    #     height = int(base_width / aspect_ratio)
+    #     image = image.resize((base_width, height), Image.ANTIALIAS)
     return image
 
 

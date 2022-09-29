@@ -20,7 +20,7 @@ async def delete_old_messages(session: Type[DBSession], messages: list):
             session.execute(delete(Message).filter(Message.message_id == message.message_id))
             session.commit()
         except Exception as e:
-            print('delete old messages exc: ', e)
+            # print('delete old messages exc: ', e)
             session.execute(
                 delete(Message).filter(Message.message_id == message.message_id)
             )

@@ -11,6 +11,7 @@ from aiogram_bot.commands import (
     INLINE_DELETE_BUTTON_TEXT,
     INLINE_ORDER_DESIGN_BUTTON_TEXT,
     INLINE_NEXT_SCENARIO_BUTTON_TEXT,
+    INLINE_NEXT_EXAMPLE_BUTTON_TEXT,
     INLINE_INSTRUCTION_BUTTON_TEXT,
     INLINE_RETURN_BUTTON_TEXT,
     INLINE_CONNECT_DESIGNER_BUTTON_TEXT,
@@ -44,6 +45,7 @@ to_start_button = InlineKeyboardButton(INLINE_TO_START_BUTTON_TEXT, callback_dat
 delete_button = InlineKeyboardButton(INLINE_DELETE_BUTTON_TEXT, callback_data=DELETE_COMMAND)
 order_design_button = InlineKeyboardButton(INLINE_ORDER_DESIGN_BUTTON_TEXT, callback_data=ORDER_DESIGN_COMMAND)
 next_scenario_button = InlineKeyboardButton(INLINE_NEXT_SCENARIO_BUTTON_TEXT, callback_data=NEXT_SCENARIO_COMMAND)
+next_example_button = InlineKeyboardButton(INLINE_NEXT_EXAMPLE_BUTTON_TEXT, callback_data=NEXT_SCENARIO_COMMAND)
 instruction_button = InlineKeyboardButton(INLINE_INSTRUCTION_BUTTON_TEXT, callback_data=INSTRUCTION_COMMAND)
 return_button = InlineKeyboardButton(INLINE_RETURN_BUTTON_TEXT, callback_data=RETURN_COMMAND)
 connect_designer_button = InlineKeyboardButton(INLINE_CONNECT_DESIGNER_BUTTON_TEXT, callback_data=CONNECT_DESIGNER_COMMAND)
@@ -93,6 +95,10 @@ help_keyboard = InlineKeyboardMarkup(row_width=2)
 help_keyboard.add(order_design_button)
 help_keyboard.add(next_scenario_button)
 
+example_keyboard = InlineKeyboardMarkup(row_width=2)
+example_keyboard.add(order_design_button)
+example_keyboard.add(next_example_button)
+
 # Overview favorite template keyboard
 help_view_keyboard = InlineKeyboardMarkup(row_width=2)
 help_view_keyboard.add(order_design_button)
@@ -126,4 +132,5 @@ keyboards_dict = {
     'help_view_keyboard': help_view_keyboard,
     'help_to_start_keyboard': help_to_start_keyboard,
     'instruction_keyboard': overview_keyboard,
+    'example_keyboard': example_keyboard
 }

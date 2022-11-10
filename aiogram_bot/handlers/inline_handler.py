@@ -208,7 +208,7 @@ async def inline_connect_designer_command_handler(callback_query: types.Callback
 async def inline_return_command_handler(callback_query: types.CallbackQuery):
     s = DBSession()
     try:
-        # Set overview to True
+        # Set overview to true value
         s.execute(update(User).filter(User.user_id == callback_query.from_user.id).values(check_image_overview=0))
         s.commit()
 

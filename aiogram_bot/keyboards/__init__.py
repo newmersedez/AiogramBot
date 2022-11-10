@@ -7,10 +7,11 @@ from .inline_keyboard import (
     favorite_view_keyboard,
     favorite_to_start_keyboard,
     help_keyboard,
+    example_keyboard,
     help_view_keyboard,
     help_to_start_keyboard,
     overview_keyboard,
     instruction_keyboard,
     upload_image_keyboard,
-    keyboards_dict
+    keyboards_dict,
 )

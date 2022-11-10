@@ -16,7 +16,8 @@ from aiogram_bot.keyboards import (
     design_keyboard,
     favorite_keyboard,
     help_keyboard,
-    upload_image_keyboard
+    upload_image_keyboard,
+    example_keyboard
 )
 from aiogram_bot.commands import (
     SIMPLE_DESIGN_COMMAND,
@@ -436,9 +437,9 @@ async def reply_examples_command_handler(message: types.Message):
             media.append(types.InputMediaPhoto(data[0]))
             msg1_id = await bot.send_message(message.chat.id, EXAMPLES_MESSAGE_TEXT, reply_markup=reply_keyboard)
             msg2_id = await bot.send_media_group(message.chat.id, media)
-            msg3_id = await bot.send_message(message.chat.id, f'Пример работы', reply_markup=help_keyboard)
+            msg3_id = await bot.send_message(message.chat.id, f'Пример работы', reply_markup=example_keyboard)
             s.execute(
-                update(User).where(User.user_id == message.from_user.id).values(last_keyboard='help_keyboard')
+                update(User).where(User.user_id == message.from_user.id).values(last_keyboard='example_keyboard')
             )
             s.commit()
             s.execute(

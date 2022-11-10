@@ -22,7 +22,8 @@ from aiogram_bot.keyboards import (
     help_view_keyboard,
     overview_keyboard,
     instruction_keyboard,
-    keyboards_dict
+    keyboards_dict,
+    example_keyboard
 )
 from aiogram_bot.commands import (
     SIMPLE_DESIGN_COMMAND,
@@ -578,11 +579,18 @@ async def inline_prev_design_command_handler(callback_query: types.CallbackQuery
                             last_keyboard='favorite_keyboard')
                     )
                     s.commit()
-                elif last_reply_command == HELP_COMMAND or last_reply_command == EXAMPLES_COMMAND:
+                elif last_reply_command == HELP_COMMAND:
                     markup = help_keyboard
                     s.execute(
                         update(User).where(User.user_id == callback_query.from_user.id).values(
                             last_keyboard='help_keyboard')
+                    )
+                    s.commit()
+                elif last_reply_command == EXAMPLES_COMMAND:
+                    markup = example_keyboard
+                    s.execute(
+                        update(User).where(User.user_id == callback_query.from_user.id).values(
+                            last_keyboard='example_keyboard')
                     )
                     s.commit()
                 else:
@@ -722,11 +730,18 @@ async def inline_to_start_command_handler(callback_query: types.CallbackQuery):
                         last_keyboard='favorite_keyboard')
                 )
                 s.commit()
-            elif last_reply_command == HELP_COMMAND or last_reply_command == EXAMPLES_COMMAND:
+            elif last_reply_command == HELP_COMMAND:
                 markup = help_keyboard
                 s.execute(
                     update(User).where(User.user_id == callback_query.from_user.id).values(
                         last_keyboard='help_keyboard')
+                )
+                s.commit()
+            elif last_reply_command == EXAMPLES_COMMAND:
+                markup = example_keyboard
+                s.execute(
+                    update(User).where(User.user_id == callback_query.from_user.id).values(
+                        last_keyboard='example_keyboard')
                 )
                 s.commit()
             else:

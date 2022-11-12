@@ -137,6 +137,13 @@ async def reply_non_command_handler(message):
 
 @dp.message_handler(lambda message: message.text == SIMPLE_DESIGN_COMMAND)
 async def reply_simple_design_command_handler(message: types.Message):
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png'))
+
     s = DBSession()
     try:
         if message.from_user.id in users_set:
@@ -211,6 +218,13 @@ async def reply_simple_design_command_handler(message: types.Message):
 
 @dp.message_handler(lambda message: message.text == COMPLEX_DESIGN_COMMAND)
 async def reply_complex_design_command_handler(message: types.Message):
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png'))
+
     s = DBSession()
     try:
         if message.from_user.id in users_set:
@@ -285,6 +299,13 @@ async def reply_complex_design_command_handler(message: types.Message):
 
 @dp.message_handler(lambda message: message.text == FAVORITE_COMMAND)
 async def reply_favorite_command_handler(message: types.Message):
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png'))
+
     s = DBSession()
     try:
         if message.from_user.id in users_set:
@@ -355,6 +376,13 @@ async def reply_favorite_command_handler(message: types.Message):
 
 @dp.message_handler(lambda message: message.text == HELP_COMMAND)
 async def reply_help_command_handler(message: types.Message):
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png'))
+
     s = DBSession()
     try:
         if message.from_user.id in users_set:
@@ -417,6 +445,13 @@ async def reply_help_command_handler(message: types.Message):
 
 @dp.message_handler(lambda message: message.text == EXAMPLES_COMMAND)
 async def reply_examples_command_handler(message: types.Message):
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png'))
+
     s = DBSession()
     try:
         if message.from_user.id in users_set:

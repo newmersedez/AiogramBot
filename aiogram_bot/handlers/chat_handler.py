@@ -1,6 +1,9 @@
+import os
+
 from aiogram import types, filters
 from sqlalchemy import insert
 
+from aiogram_bot.config import IMAGES_DIR
 from aiogram_bot.misc import BOT_ADMIN
 from aiogram_bot.models import User, Message
 from aiogram_bot.keyboards import reply_keyboard
@@ -11,6 +14,13 @@ from aiogram_bot.handlers import delete_old_messages, get_actual_message
 
 @dp.message_handler(filters.CommandStart())
 async def chat_start_command_handler(message: types.Message):
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{message.from_user.id}_template.png'))
+
     s = DBSession()
     try:
         if message.from_user.id == BOT_ADMIN:

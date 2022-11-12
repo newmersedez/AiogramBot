@@ -207,6 +207,13 @@ async def inline_connect_designer_command_handler(callback_query: types.Callback
 
 @dp.callback_query_handler(lambda c: c.data and c.data == RETURN_COMMAND)
 async def inline_return_command_handler(callback_query: types.CallbackQuery):
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_result.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_result.png'))
+    if os.path.exists(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_template.png')):
+        os.remove(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_template.png'))
+
     s = DBSession()
     try:
         # Set overview to True

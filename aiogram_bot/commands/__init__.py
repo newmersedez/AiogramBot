@@ -26,6 +26,7 @@ from .reply_commands import (
 from .text_commands import (
     STARTUP_TEXT,
     GREETING_USER_TEXT,
+    GREETING_WITHOUT_USER_TEXT,
     DESIGN_STARTUP_TEXT,
     DESIGN_DESCRIPTION_TEXT,
     HELP_STARTUP_TEXT,

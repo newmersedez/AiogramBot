@@ -74,7 +74,6 @@ async def reply_image_send_handler(message: types.Message):
         s.commit()
 
         # Creating image
-        user_request = s.query(User).filter(User.user_id == message.from_user.id).first()
         last_reply_command = user_request.last_reply_command
         image_path = os.path.join(IMAGES_DIR, f'{message.from_user.id}.png')
         output_path = os.path.join(IMAGES_DIR, f'{message.from_user.id}_result.png')
@@ -101,6 +100,7 @@ async def reply_image_send_handler(message: types.Message):
         response = requests.get(final_url)
         download_url = response.json()['href']
         download_response = requests.get(download_url)
+        # print('download response = ', download_response, download_url)
         with open(template_path, 'wb') as f:
             f.write(download_response.content)
 

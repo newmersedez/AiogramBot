@@ -21,6 +21,7 @@ def resize_for_complex_template(image_path: str, base_width=COMPLEX_TEMPLATE_WID
     :return Image class object
     """
 
+    # image = Image.open(image_path).convert("RGBA")
     image = remove_image_background(image_path)
 
     image_components = image.split()

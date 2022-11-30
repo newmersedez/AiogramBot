@@ -53,11 +53,14 @@ def create_complex_template(image_path: str, output_path: str, background=str, w
     :param watermark path to watermark layout (set to default)
     """
 
-    image = resize_for_complex_template(image_path)
-    background = Image.open(background)
-    watermark = Image.open(watermark)
-    background.paste(image,
+    try:
+        image = resize_for_complex_template(image_path)
+        background = Image.open(background)
+        watermark = Image.open(watermark)
+        background.paste(image,
                      (COMPLEX_TEMPLATE_IMAGE_X - image.width // 2, COMPLEX_TEMPLATE_IMAGE_Y - image.height // 2),
                      image)
-    background.paste(watermark, (0, 0), watermark)
-    background.save(output_path)
+        background.paste(watermark, (0, 0), watermark)
+        background.save(output_path)
+    except Exception as e:
+        pass

@@ -165,12 +165,18 @@ async def inline_order_command_handler(callback_query: types.CallbackQuery):
             media = list()
             for i in range(0, 2):
                 media.append(types.InputMediaPhoto(data[i], f'Example {i}'))
-            await bot.send_message(BOT_ADMIN, NEW_ORDER_MESSAGE_TEXT.format(callback_query.from_user.username))
+            await bot.send_message(
+                BOT_ADMIN,
+                NEW_ORDER_MESSAGE_TEXT
+                    .format(callback_query.from_user.username + ' (' + callback_query.from_user.full_name) + ')')
             await bot.send_media_group(BOT_ADMIN, media)
         else:
             if os.path.exists(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_result.png')):
                 result_photo = types.InputFile(os.path.join(IMAGES_DIR, f'{callback_query.from_user.id}_result.png'))
-                await bot.send_message(BOT_ADMIN, NEW_ORDER_MESSAGE_TEXT.format(callback_query.from_user.username))
+                await bot.send_message(
+                    BOT_ADMIN,
+                    NEW_ORDER_MESSAGE_TEXT
+                    .format(callback_query.from_user.username + ' (' + callback_query.from_user.full_name) + ')')
                 await bot.send_photo(BOT_ADMIN, photo=result_photo)
             else:
                 await bot.send_message(
